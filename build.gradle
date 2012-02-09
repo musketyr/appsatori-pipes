@@ -1,0 +1,27 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    def gaeVersion = '1.6.2'
+
+    groovy 'org.codehaus.groovy:groovy-all:1.8.5'
+
+    compile "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
+    compile "com.google.appengine:appengine-api-labs:$gaeVersion"
+	compile 'com.google.guava:guava:11.0.1'
+	
+    testCompile 'org.spockframework:spock-core:0.5-groovy-1.8', {
+        exclude group: 'org.codehaus.groovy', name: 'groovy-all'
+    }
+    testCompile "com.google.appengine:appengine-api-stubs:$gaeVersion"
+    testCompile "com.google.appengine:appengine-testing:$gaeVersion"
+    testCompile 'javax.servlet:servlet-api:2.5'
+}
+
