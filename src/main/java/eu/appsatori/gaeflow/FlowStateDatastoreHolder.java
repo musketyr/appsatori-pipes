@@ -1,8 +1,10 @@
 package eu.appsatori.gaeflow;
 
+import eu.appsatori.gaeflow.ds.DatastoreFlowStateDatastore;
+
 public class FlowStateDatastoreHolder {
 	
-	private static FlowStateDatastore flowStateDatastore;
+	private static FlowStateDatastore flowStateDatastore = new DatastoreFlowStateDatastore();
 	
 	private FlowStateDatastoreHolder() {}
 

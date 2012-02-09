@@ -4,6 +4,7 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
+import eu.appsatori.gaeflow.stubs.FailingTask;
 import eu.appsatori.gaeflow.stubs.StubTask1;
 import eu.appsatori.gaeflow.stubs.StubTask2;
 import spock.lang.Specification
@@ -111,9 +112,6 @@ class NodeExecutorSpec extends Specification {
 		1 * tds.find('one') >> node1
 		1 * tds.find('two') >> node2
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
-		
-		where:
-		remaining << [0, 1]
 	}
 	
 }

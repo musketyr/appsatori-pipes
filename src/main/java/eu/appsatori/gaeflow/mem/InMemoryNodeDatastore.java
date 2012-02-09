@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import eu.appsatori.gaeflow.BaseNodeDatastore;
 import eu.appsatori.gaeflow.Node;
 import eu.appsatori.gaeflow.NodeDatastore;
 
-public class InMemoryNodeDatastore implements NodeDatastore {
+public class InMemoryNodeDatastore extends BaseNodeDatastore implements NodeDatastore {
 	
 	private final Map<String, Node<?,?>> transitions;
 	
