@@ -54,6 +54,14 @@ public interface FlowStateDatastore {
 	 */
 	List<Object> getTaskResults(String taskId);
 	
+	/**
+	 * The number of tasks running in parallel for particular base id.
+	 * @param taskId base id of the task (e.g. without index suffix)
+	 * @return number of tasks running in parallel for given base id
+	 * @throws IllegalArgumentException if there is no such task with given id logged
+	 */
+	int getParallelTaskCount(String taskId);
+	
 	
 	/**
 	 * Clears task execution log form the datastore.

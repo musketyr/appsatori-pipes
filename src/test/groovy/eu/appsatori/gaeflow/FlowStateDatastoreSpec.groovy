@@ -14,6 +14,7 @@ abstract class FlowStateDatastoreSpec extends Specification{
 		expect:
 		true == fds.logTaskStarted(ptid, parallelTasksCount)
 		false == fds.logTaskStarted(ptid, parallelTasksCount)
+		3 == fds.getParallelTaskCount(ptid)
 		
 		when:
 		fds.getTaskResults(ptid)

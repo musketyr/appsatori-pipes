@@ -13,7 +13,5 @@
 	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/javax.servlet/servlet-api/c12498cf18507aa6433a94eb7d3e77d5/sources/servlet-api-2.5-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/javax.servlet/servlet-api/c12498cf18507aa6433a94eb7d3e77d5/jars/servlet-api-2.5.jar" exported="true"/>
 	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-1.0-sdk/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-1.0-sdk-1.6.2.jar" exported="true"/>
 	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-labs/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-labs-1.6.2.jar" exported="true"/>
-	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/com.google.guava/guava/c12498cf18507aa6433a94eb7d3e77d5/sources/guava-11.0.1-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.guava/guava/c12498cf18507aa6433a94eb7d3e77d5/jars/guava-11.0.1.jar" exported="true"/>
-	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.code.findbugs/jsr305/c12498cf18507aa6433a94eb7d3e77d5/jars/jsr305-1.3.9.jar" exported="true"/>
 	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.codehaus.groovy/groovy-all/c12498cf18507aa6433a94eb7d3e77d5/sources/groovy-all-1.8.5-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.codehaus.groovy/groovy-all/c12498cf18507aa6433a94eb7d3e77d5/jars/groovy-all-1.8.5.jar" exported="true"/>
 </classpath>

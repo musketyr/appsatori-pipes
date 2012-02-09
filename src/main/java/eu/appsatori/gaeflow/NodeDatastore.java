@@ -16,17 +16,23 @@
  */package eu.appsatori.gaeflow;
 
  /**
-  * Datastore to store transitions between two states of the flow.
+  * Datastore to store flow nodes.
   * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
   */
-public interface TransitionDatastore {
+public interface NodeDatastore {
 	
 	/**
-	 * Finds {@link Transition} from the given state to the given state
-	 * @param from original state
-	 * @param to next state
-	 * @return {@link Transition} for given combination or <code>null</code> if there is no such {@link Transition}
+	 * Finds {@link Node} for a given name.
+	 * @param from node name
+	 * @return {@link Node} for given name or <code>null</code> if there is no such {@link Node}
 	 */
-	<A,R> Transition<A,R> find(String from, String to);
+	<A,R> Node<A,R> find(String from);
+	
+	/**
+	 * Finds {@link Node} handling given exception.
+	 * @param from class of exception to be handled
+	 * @return {@link Node} for given name or <code>null</code> if there is no such {@link Node}
+	 */
+	<E extends Throwable,R> Node<E,R> find(Class<? extends Throwable> from);
 	
 }

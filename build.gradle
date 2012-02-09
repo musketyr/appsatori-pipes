@@ -15,7 +15,6 @@ dependencies {
 
     compile "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
     compile "com.google.appengine:appengine-api-labs:$gaeVersion"
-	compile 'com.google.guava:guava:11.0.1'
 	
     testCompile 'org.spockframework:spock-core:0.5-groovy-1.8', {
         exclude group: 'org.codehaus.groovy', name: 'groovy-all'

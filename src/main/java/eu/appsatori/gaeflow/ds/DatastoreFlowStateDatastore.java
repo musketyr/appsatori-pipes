@@ -51,6 +51,15 @@ public class DatastoreFlowStateDatastore implements FlowStateDatastore {
 		}
 	}
 
+	public int getParallelTaskCount(String taskId) {
+			try {
+				Entity task = get(getKey(taskId));
+				Long total = (Long) task.getProperty(TOTAL_COUNT);
+				return total.intValue();
+			} catch (EntityNotFoundException e){
+				throw new IllegalArgumentException("Task " + taskId + " hasn't been logged!", e);
+			}
+	}
 
 
 	public int logTaskFinished(String taskId, int index, Object result) {

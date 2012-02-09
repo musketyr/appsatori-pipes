@@ -4,7 +4,7 @@ import eu.appsatori.gaeflow.Task;
 
 class StubTask1 extends Task<String, Integer> {
 	
-	void execute(String text) {
+	ExecutionResult execute(String text) {
 		next('two', text.length())
 	}
 
