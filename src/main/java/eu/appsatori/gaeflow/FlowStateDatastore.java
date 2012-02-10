@@ -69,5 +69,13 @@ public interface FlowStateDatastore {
 	 * @return <code>true</code> if there was task of given name and has been cleared successfully
 	 */
 	boolean clearTaskLog(String taskId);
+	
+	/**
+	 * Clears task execution log form the datastore.
+	 * @param taskId base id of the task (e.g. without index suffix)
+	 * @param force wheather unfinished tasks should be ignored
+	 * @return <code>true</code> if there was task of given name and has been cleared successfully
+	 */
+	boolean clearTaskLog(String taskId, boolean force);
 
 }

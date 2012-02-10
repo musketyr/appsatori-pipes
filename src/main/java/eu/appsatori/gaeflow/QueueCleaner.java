@@ -16,6 +16,7 @@
 
 package eu.appsatori.gaeflow;
 
+import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 
 public class QueueCleaner {
@@ -23,8 +24,14 @@ public class QueueCleaner {
 	private QueueCleaner() {}
 	
 	static <A, R> void clean(String queue, String baseTaskId, int tasksCount){
+		Queue q;
+		if("".equals(queue) || queue == null){
+			q = QueueFactory.getDefaultQueue();
+		} else {
+			q = QueueFactory.getQueue(queue);
+		}
 		for (int i = 0; i < tasksCount; i++) {
-			QueueFactory.getQueue(queue).deleteTask("" + i + "_" + baseTaskId);
+			q.deleteTask("" + i + "_" + baseTaskId);
 		}
 	}
 	

@@ -124,7 +124,7 @@ class NodeExecutorSpec extends Specification {
 		executor.run()
 		
 		then:
-		1 * fds.clearTaskLog('taskid')
+		1 * fds.clearTaskLog('taskid', true) >> true
 		1 * tds.find('one') >> node1
 		1 * tds.find('two') >> node2
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks

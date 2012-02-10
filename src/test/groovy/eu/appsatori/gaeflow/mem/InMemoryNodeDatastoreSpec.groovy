@@ -24,7 +24,7 @@ class InMemoryNodeDatastoreSpec extends NodeDatastoreSpec {
 
 	@Override
 	protected NodeDatastore createNodeDatastore(Node... transitions) {
-		return new InMemoryNodeDatastore(transitions.toList());
+		return new InMemoryNodeDatastore(transitions);
 	}
 
 }

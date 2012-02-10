@@ -27,19 +27,29 @@ public abstract class Task<A,R> {
 	
 	public abstract ExecutionResult execute(A arg) throws Exception;
 	
-	protected ExecutionResult next(String state){
+	protected final ExecutionResult next(String state){
 		return next(state, null);
 	}
 	
-	protected ExecutionResult next(String state, R result){
+	protected final ExecutionResult next(String state, R result){
 		this.nextState = state;
 		this.result = result;
 		return ExecutionResult.INSTANCE;
 	}
 	
-	protected ExecutionResult finish(){
+	protected final ExecutionResult start(String state){
+		return start(state, null);
+	}
+	
+	protected final ExecutionResult start(String state, R result){
+		Flow.getFlow().start(state, result);
 		return ExecutionResult.INSTANCE;
 	}
+	
+	protected final ExecutionResult finish(){
+		return ExecutionResult.INSTANCE;
+	}
+	
 	
 	public R getResult() {
 		return result;

@@ -37,8 +37,9 @@ public class TaskExecutor {
 		}
 		String taskId = getUniqueTaskId(node.getName());
 		Queue q = getQueue(node);
-		
-		for (int i = 0; i < node.getTaskType().getParallelTasksCount(arg); i++) {
+		int total = node.getTaskType().getParallelTasksCount(arg);
+		fds.logTaskStarted(taskId, total);
+		for (int i = 0; i < total; i++) {
 			startTask(q, node, arg, taskId, i);
 		}
 		return taskId;
@@ -46,7 +47,7 @@ public class TaskExecutor {
 
 	private <A, R> void startTask(Queue q, Node<A, R> node,
 			Object arg, String taskId, int index) {
-		fds.logTaskStarted(taskId, index);
+		
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		NodeExecutor nodeExecutor = new NodeExecutor(node.getName(), taskId, index, arg);
 		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeExecutor);

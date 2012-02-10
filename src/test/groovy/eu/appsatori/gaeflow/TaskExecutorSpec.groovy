@@ -40,7 +40,7 @@ class TaskExecutorSpec extends Specification {
 		executor.execute(node, 'hello')
 		
 		then:
-		1 * fds.logTaskStarted(_, 0)
+		1 * fds.logTaskStarted(_, 1)
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
@@ -50,9 +50,7 @@ class TaskExecutorSpec extends Specification {
 		executor.execute(node, ['hello', 'world', '!'])
 		
 		then:
-		1 * fds.logTaskStarted(_, 0)
-		1 * fds.logTaskStarted(_, 1)
-		1 * fds.logTaskStarted(_, 2)
+		1 * fds.logTaskStarted(_, 3)
 		3 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	

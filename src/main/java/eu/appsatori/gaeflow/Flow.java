@@ -50,6 +50,19 @@ public class Flow {
 	public void start(String node, Object argument){
 		new TaskExecutor(flowStateDatastore).execute(nodeDatastore.find(node), argument);
 	}
+
+
+	public static Flow getFlow() {
+		NodeDatastore nds = NodeDatastoreHolder.getNodeDatastore();
+		FlowStateDatastore fds = FlowStateDatastoreHolder.getFlowStateDatastore();
+		if(fds == null){
+			throw new NullPointerException("Flow datastore cannot be null!");
+		}
+		if(nds == null){
+			throw new NullPointerException("Node datastore cannot be null!");
+		}
+		return new Flow(fds, nds);
+	}
 	
 	
 	

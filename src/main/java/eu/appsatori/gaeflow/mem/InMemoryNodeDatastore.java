@@ -16,7 +16,6 @@
 
 package eu.appsatori.gaeflow.mem;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +28,8 @@ public class InMemoryNodeDatastore extends BaseNodeDatastore implements NodeData
 	
 	private final Map<String, Node<?,?>> transitions;
 	
-	public InMemoryNodeDatastore(Collection<Node<?,?>> tranistions){
-		Map<String, Node<?,?>> builder = new HashMap<String, Node<?,?>>(tranistions.size());
+	public InMemoryNodeDatastore(Node<?,?>... tranistions){
+		Map<String, Node<?,?>> builder = new HashMap<String, Node<?,?>>(tranistions.length);
 		
 		for(Node<?,?> t: tranistions){
 			builder.put(t.getName(), t);

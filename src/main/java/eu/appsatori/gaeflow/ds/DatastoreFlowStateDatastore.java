@@ -143,12 +143,16 @@ public class DatastoreFlowStateDatastore implements FlowStateDatastore {
 			throw new IllegalArgumentException("Task " + taskId + " hasn't been logged!", e);
 		}
 	}
+	
+	public boolean clearTaskLog(String taskId){
+		return clearTaskLog(taskId, false);
+	}
 
-	public boolean clearTaskLog(String taskId) {
+	public boolean clearTaskLog(String taskId, boolean force) {
 		try {
 			Entity task = get(getKey(taskId));
 			Long count = (Long) task.getProperty(COUNT);
-			if(count != null && count.intValue() != 0){
+			if(!force && count != null && count.intValue() != 0){
 				throw new IllegalStateException("All tasks haven't finished yet!");
 			}
 			
