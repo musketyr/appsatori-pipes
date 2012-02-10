@@ -24,10 +24,8 @@ import eu.appsatori.pipes.stubs.FailingTask;
 import eu.appsatori.pipes.stubs.StubTask1;
 import eu.appsatori.pipes.stubs.StubTask2;
 import eu.appsatori.pipes.PipeDatastore;
-import eu.appsatori.pipes.PipeDatastoreHolder;
 import eu.appsatori.pipes.NodeDescriptor;
 import eu.appsatori.pipes.NodeDatastore;
-import eu.appsatori.pipes.NodeDatastoreHolder;
 import eu.appsatori.pipes.NodeTask;
 import spock.lang.Specification
 
@@ -42,14 +40,14 @@ class NodeTaskSpec extends Specification {
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
 	
 	def setup(){
-		PipeDatastoreHolder.pipeDatastore = fds;
-		NodeDatastoreHolder.nodeDatastore = tds;
+		Pipes.pipeDatastore = fds;
+		Pipes.nodeDatastore = tds;
 		helper.setUp();
 	}
 	
 	def cleanup(){
-		PipeDatastoreHolder.pipeDatastore = null;
-		NodeDatastoreHolder.nodeDatastore = null;
+		Pipes.pipeDatastore = null;
+		Pipes.nodeDatastore = null;
 		helper.tearDown();
 	}
 	

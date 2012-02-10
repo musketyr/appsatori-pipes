@@ -37,8 +37,8 @@ public class NodeTask implements DeferredTask {
 	}
 
 	public void run() {
-		NodeDatastore nds = NodeDatastoreHolder.getNodeDatastore();
-		PipeDatastore fds = PipeDatastoreHolder.getPipeDatastore();
+		NodeDatastore nds = Pipes.getNodeDatastore();
+		PipeDatastore fds = Pipes.getPipeDatastore();
 		NodeDescriptor node = nds.find(nodeName);
 		NodeBase taskInstance = createTaskInstance(node);
 		

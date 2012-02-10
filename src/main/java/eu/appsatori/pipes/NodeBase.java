@@ -42,7 +42,7 @@ public abstract class NodeBase {
 	}
 	
 	protected final ExecutionResult start(String state, Object result){
-		Pipes.getPipes().start(state, result);
+		Pipes.start(state, result);
 		return ExecutionResult.OK;
 	}
 	

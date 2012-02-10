@@ -87,8 +87,6 @@ public final class NodeDescriptor {
 		return new NodeDescriptor(name, nodeBase, nodeType, queue);
 	}
 	
-	
-	
 	public String getQueue() {
 		return queue;
 	}

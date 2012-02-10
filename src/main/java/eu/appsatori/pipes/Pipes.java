@@ -22,46 +22,38 @@ package eu.appsatori.pipes;
   */
 public class Pipes {
 
-	private final PipeDatastore pipeDatastore;
-	private final NodeDatastore nodeDatastore;
+	private static PipeDatastore pipeDatastore;
+	private static NodeDatastore nodeDatastore;
 	
-	private Pipes(PipeDatastore pipeDatastore, NodeDatastore nodeDatastore) {
-		this.pipeDatastore = pipeDatastore;
-		this.nodeDatastore = nodeDatastore;
-	}
+	private Pipes() {}
 	
 	
-	public static Pipes getPipes(PipeDatastore pds, NodeDatastore nds){
-		if(pds == null){
-			throw new NullPointerException("Pipes datastore cannot be null!");
-		}
-		PipeDatastoreHolder.setPipeDatastore(pds);
-		if(nds == null){
-			throw new NullPointerException("NodeDescriptor datastore cannot be null!");
-		}
-		NodeDatastoreHolder.setNodeDatastore(nds);
-		return new Pipes(pds, nds);
-	}
-	
-	public void start(String node){
+	public static void start(String node){
 		start(node, null);
 	}
 	
-	public void start(String node, Object argument){
+	public static void start(String node, Object argument){
 		new NodeExecutor(pipeDatastore).execute(nodeDatastore.find(node), argument);
 	}
 
 
-	public static Pipes getPipes() {
-		NodeDatastore nds = NodeDatastoreHolder.getNodeDatastore();
-		PipeDatastore pds = PipeDatastoreHolder.getPipeDatastore();
-		if(pds == null){
-			throw new NullPointerException("Pipes datastore cannot be null!");
-		}
-		if(nds == null){
-			throw new NullPointerException("NodeDescriptor datastore cannot be null!");
-		}
-		return new Pipes(pds, nds);
+	public static PipeDatastore getPipeDatastore() {
+		return pipeDatastore;
+	}
+
+
+	public static void setPipeDatastore(PipeDatastore pipeDatastore) {
+		Pipes.pipeDatastore = pipeDatastore;
+	}
+
+
+	public static NodeDatastore getNodeDatastore() {
+		return nodeDatastore;
+	}
+
+
+	public static void setNodeDatastore(NodeDatastore nodeDatastore) {
+		Pipes.nodeDatastore = nodeDatastore;
 	}
 	
 	
