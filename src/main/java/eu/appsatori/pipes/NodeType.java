@@ -30,6 +30,32 @@ public enum NodeType {
 		public boolean isSerial() {
 			return false;
 		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public  <A> NodeResult execute(Node<A> taskInstance, Object arg, int index)
+				throws Exception {
+			return taskInstance.execute(Pipe.INSTANCE, (A) ObjectsToIterables.getAt(index, arg));
+		}
+		
+		@Override
+		public void handlePipeEnd(String baseTaskId, int index, Object result) {
+			PipeDatastore pds = Pipes.getPipeDatastore();
+			if(0 == pds.logTaskFinished(baseTaskId, index, result)){
+				pds.clearTaskLog(baseTaskId, true);
+			}
+		}
+		
+		@Override
+		public void handleNext(String baseTaskId, int index, NodeResult result) {
+			PipeDatastore fds = Pipes.getPipeDatastore();
+			int remaining = fds.logTaskFinished(baseTaskId, index, result.getResult());
+			if(remaining > 0){
+				return;
+			}
+			Pipes.start(result.getNext(), fds.getTaskResults(baseTaskId));
+			fds.clearTaskLog(baseTaskId);
+		}
 	},
 	EXCEPTION_HANDLER;
 
@@ -39,6 +65,18 @@ public enum NodeType {
 	
 	public boolean isSerial(){
 		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <A> NodeResult execute(Node<A> taskInstance, Object arg, int index) throws Exception {
+		return taskInstance.execute(Pipe.INSTANCE, (A) arg);
+	}
+	
+	public void handlePipeEnd(String baseTaskId, int index, Object result){}
+
+	public void handleNext(String baseTaskId, int index, NodeResult result) {
+		Pipes.start(result.getNext(), result.getResult());
+		Pipes.getPipeDatastore().clearTaskLog(baseTaskId);
 	}
 
 }

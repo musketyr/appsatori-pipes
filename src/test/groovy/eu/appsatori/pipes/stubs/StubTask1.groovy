@@ -16,12 +16,14 @@
 
 package eu.appsatori.pipes.stubs
 
-import eu.appsatori.pipes.NodeBase;
+import eu.appsatori.pipes.Node;
+import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.Pipe;
 
-class StubTask1 extends NodeBase {
+class StubTask1 implements Node {
 	
-	ExecutionResult execute(Object text) {
-		next('two', text.length())
+	NodeResult execute(Pipe pipe, Object text) {
+		pipe.next('two', text.length())
 	}
 
 }

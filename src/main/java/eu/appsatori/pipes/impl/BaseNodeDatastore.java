@@ -15,6 +15,7 @@
  * limitations under the License.
  */package eu.appsatori.pipes.impl;
 
+import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeDescriptor;
 import eu.appsatori.pipes.NodeDatastore;
 
@@ -29,8 +30,8 @@ public abstract class BaseNodeDatastore implements NodeDatastore {
 	 * @see eu.appsatori.pipes.NodeDatastore#find(java.lang.Class)
 	 */
 	@SuppressWarnings("unchecked")
-	public NodeDescriptor find(Class<? extends Throwable> from) {
-		NodeDescriptor node = find(from.getName());
+	public <N extends Node<?>> NodeDescriptor<N> find(Class<? extends Throwable> from){
+		NodeDescriptor<N> node = find(from.getName());
 		if(node != null){
 			return node;
 		}

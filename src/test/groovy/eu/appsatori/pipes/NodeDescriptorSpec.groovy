@@ -28,42 +28,42 @@ class NodeDescriptorSpec extends Specification {
 	
 	def "Simple serial node"(){
 		when:
-		def n = at 'one' run StubTask1
+		def n = serial 'one', StubTask1
 		
 		then:
 		n.name == 'one'
-		n.nodeBase == StubTask1
+		n.node == StubTask1
 		n.nodeType == NodeType.SERIAL
 	}
 	
 	def "Simple exception handler"(){
 		when:
-		def n = on IllegalArgumentException run StubTask1
+		def n = handler IllegalArgumentException,  StubTask1
 		
 		then:
 		n.name == IllegalArgumentException.name
-		n.nodeBase == StubTask1
-		n.nodeType == NodeType.SERIAL
+		n.node == StubTask1
+		n.nodeType == NodeType.EXCEPTION_HANDLER
 	}
 	
 	def "Simple serial node with target"(){
 		when:
-		def n = at 'two' run StubTask1 inQueue 'sync'
+		def n = serial 'two', StubTask1, 'sync'
 		
 		then:
 		n.name == 'two'
-		n.nodeBase == StubTask1
+		n.node == StubTask1
 		n.nodeType == NodeType.SERIAL
 		n.queue == 'sync'
 	}
 	
 	def "Simple parallel node"(){
 		when:
-		def n = at'three' fork StubTask1
+		def n = parallel 'three', StubTask1
 		
 		then:
 		n.name == 'three'
-		n.nodeBase == StubTask1
+		n.node == StubTask1
 		n.nodeType == NodeType.PARALLEL
 	}
 	

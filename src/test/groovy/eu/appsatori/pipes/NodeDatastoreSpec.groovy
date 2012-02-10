@@ -31,19 +31,25 @@ import spock.lang.Unroll;
 abstract class NodeDatastoreSpec extends Specification{
 	
 	NodeDatastore tds = createNodeDatastore(
-		at('one').run(StubTask1),
-		at('two').fork(StubTask2),
-		on(RuntimeException).run(StubTask1),
-		on(IllegalArgumentException).run(StubTask2)
+		serial('one',StubTask1),
+		parallel('two',StubTask2),
+		handler(RuntimeException,StubTask1),
+		handler(IllegalArgumentException,StubTask2)
 	)
-		
+	
+	def "Add node"(){
+		expect:
+		tds.add(serial('three',StubTask1))
+		tds.find('three')
+	}
+	
 	def "Find transition"(){
 		NodeDescriptor n = tds.find('one')
 		
 		expect:
 		n.name == 'one'
 		n.nodeType == NodeType.SERIAL
-		n.nodeBase == StubTask1
+		n.node == StubTask1
 	}
 	
 	def "Return null if there is no such transition"(){

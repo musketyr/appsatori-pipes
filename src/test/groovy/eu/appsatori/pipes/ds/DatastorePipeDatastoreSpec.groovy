@@ -29,7 +29,7 @@ class DatastorePipeDatastoreSpec extends PipeDatastoreSpec {
 	
 	
 	@Override
-	protected PipeDatastore createFlowDatastore() {
+	protected PipeDatastore createDatastore() {
 		return new DatastorePipeDatastore();
 	}
 	

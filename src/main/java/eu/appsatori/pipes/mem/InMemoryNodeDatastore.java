@@ -16,33 +16,40 @@
 
 package eu.appsatori.pipes.mem;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.appsatori.pipes.NodeDescriptor;
+import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeDatastore;
+import eu.appsatori.pipes.NodeDescriptor;
 import eu.appsatori.pipes.impl.BaseNodeDatastore;
 
+@SuppressWarnings("rawtypes")
 public class InMemoryNodeDatastore extends BaseNodeDatastore implements NodeDatastore {
 	
 	private final Map<String, NodeDescriptor> transitions;
 	
-	public InMemoryNodeDatastore(NodeDescriptor... tranistions){
-		Map<String, NodeDescriptor> builder = new HashMap<String, NodeDescriptor>(tranistions.length);
+	public InMemoryNodeDatastore(NodeDescriptor<?>... tranistions){
+		this.transitions = new HashMap<String, NodeDescriptor>(tranistions.length);
 		
-		for(NodeDescriptor t: tranistions){
-			builder.put(t.getName(), t);
+		for(NodeDescriptor<?> t: tranistions){
+			this.transitions.put(t.getName(), t);
 		}
-		this.transitions = Collections.unmodifiableMap(builder);
+		
 	}
 	
-	public NodeDescriptor find(String name) {
-		return transitions.get(name);
+	public final boolean add(NodeDescriptor node) {
+		this.transitions.put(node.getName(), node);
+		return true;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public NodeDescriptor find(Class<? extends Throwable> from) {
+	public <N extends Node<?>> NodeDescriptor<N> find(String from) {
+		return transitions.get(from);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <N extends Node<?>> NodeDescriptor<N> find(Class<? extends Throwable> from) {
 		NodeDescriptor node = find(from.getName());
 		if(node != null){
 			return node;

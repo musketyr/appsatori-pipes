@@ -1,11 +1,11 @@
-package eu.appsatori.pipes.util
+package eu.appsatori.pipes.util;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-class ObjectsToIterables {
+public class ObjectsToIterables {
 	
 	private ObjectsToIterables(){}
 	

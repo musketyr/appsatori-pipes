@@ -16,11 +16,13 @@
 
 package eu.appsatori.pipes.stubs
 
-import eu.appsatori.pipes.NodeBase;
+import eu.appsatori.pipes.Node;
+import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.Pipe;
 
-class FailingTask extends NodeBase {
+class FailingTask implements Node {
 	
-	ExecutionResult execute(Object text) {
+	NodeResult execute(Pipe pipe, Object text) {
 		throw new IllegalArgumentException()
 	}
 

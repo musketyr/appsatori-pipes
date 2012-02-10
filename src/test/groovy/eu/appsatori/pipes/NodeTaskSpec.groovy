@@ -46,14 +46,12 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def cleanup(){
-		Pipes.pipeDatastore = null;
-		Pipes.nodeDatastore = null;
 		helper.tearDown();
 	}
 	
 	def 'Execute serial task'(){
-		NodeDescriptor node1 = NodeDescriptor.at('one').run(StubTask1)
-		NodeDescriptor node2 = NodeDescriptor.at('two').run(StubTask2)
+		NodeDescriptor node1 = NodeDescriptor.serial('one',StubTask1)
+		NodeDescriptor node2 = NodeDescriptor.serial('two',StubTask2)
 		NodeTask executor = new NodeTask('one', 'taskid', 0, 'hello')
 		
 		expect:
@@ -72,8 +70,8 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def 'Execute unfisished parallel task'(){
-		NodeDescriptor node1 = NodeDescriptor.at('one').fork(StubTask1)
-		NodeDescriptor node2 = NodeDescriptor.at('two').run(StubTask2)
+		NodeDescriptor node1 = NodeDescriptor.parallel('one',StubTask1)
+		NodeDescriptor node2 = NodeDescriptor.serial('two',StubTask2)
 		NodeTask executor = new NodeTask('one', 'taskid', 0, 'hello')
 		
 		expect:
@@ -91,8 +89,8 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def 'Execute fisished parallel task'(){
-		NodeDescriptor node1 = NodeDescriptor.at('one').fork(StubTask1)
-		NodeDescriptor node2 = NodeDescriptor.at('two').run(StubTask2)
+		NodeDescriptor node1 = NodeDescriptor.parallel('one', StubTask1)
+		NodeDescriptor node2 = NodeDescriptor.serial('two', StubTask2)
 		NodeTask executor = new NodeTask('one', 'taskid', 0, 'hello')
 		
 		expect:

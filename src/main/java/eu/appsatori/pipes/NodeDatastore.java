@@ -16,7 +16,7 @@
 
 package eu.appsatori.pipes;
  /**
-  * Datastore to store flow nodes.
+  * Datastore to store node metadata.
   * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
   */
 public interface NodeDatastore {
@@ -26,13 +26,20 @@ public interface NodeDatastore {
 	 * @param from node name
 	 * @return {@link NodeDescriptor} for given name or <code>null</code> if there is no such {@link NodeDescriptor}
 	 */
-	NodeDescriptor find(String from);
+	<N extends Node<?>> NodeDescriptor<N> find(String from);
 	
 	/**
 	 * Finds {@link NodeDescriptor} handling given exception.
 	 * @param from class of exception to be handled
 	 * @return {@link NodeDescriptor} for given name or <code>null</code> if there is no such {@link NodeDescriptor}
 	 */
-	NodeDescriptor find(Class<? extends Throwable> from);
+	<N extends Node<?>> NodeDescriptor<N> find(Class<? extends Throwable> from);
+	
+	/**
+	 * Adds new node to the data store.
+	 * @param node node to be registered
+	 * @return <code>true</code> registration was successful
+	 */
+	<N extends Node<?>> boolean add(NodeDescriptor<N> node);
 	
 }

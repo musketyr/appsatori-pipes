@@ -14,18 +14,34 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.stubs
+package eu.appsatori.pipes;
 
-import eu.appsatori.pipes.Node;
-import eu.appsatori.pipes.NodeResult;
-import eu.appsatori.pipes.Pipe;
-
-class StubTask3 implements Node {
-
-	NodeResult execute(Pipe pipe,  arg0) {
-		// TODO Groovy Auto-generated method stub
-		// Only partially implemented. Perform organize imports
-		// to properly import parameter and return types
+public enum Pipe {
+	INSTANCE;
+	
+	public static Pipe getPipe(){
+		return Pipe.INSTANCE;
+	}
+	
+	public final NodeResult next(String state){
+		return next(state, null);
+	}
+	
+	public final NodeResult next(String next, Object result){
+		return NodeResult.create(next, result);
+	}
+	
+	public final NodeResult start(String state){
+		return start(state, null);
+	}
+	
+	public final NodeResult start(String next, Object result){
+		Pipes.start(next, result);
+		return NodeResult.create(next, result);
+	}
+	
+	public final NodeResult finish(){
+		return NodeResult.END_RESULT;
 	}
 	
 }

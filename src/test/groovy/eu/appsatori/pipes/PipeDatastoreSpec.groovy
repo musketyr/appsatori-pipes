@@ -20,10 +20,9 @@ import eu.appsatori.pipes.PipeDatastore;
 import spock.lang.Specification;
 
 abstract class PipeDatastoreSpec extends Specification{
-	
 		
 	def "Handle parallel task"(){
-		PipeDatastore fds = createFlowDatastore()
+		PipeDatastore fds = createDatastore()
 		String ptid = '__parallel_task__01__'
 		int parallelTasksCount = 3
 		
@@ -115,6 +114,6 @@ abstract class PipeDatastoreSpec extends Specification{
 		thrown(IllegalArgumentException)
 	}
 
-	protected abstract PipeDatastore createFlowDatastore();
+	protected abstract PipeDatastore createDatastore();
 	
 }

@@ -72,7 +72,7 @@ public class DatastorePipeDatastore implements PipeDatastore {
 				Long total = (Long) task.getProperty(TOTAL_COUNT);
 				return total.intValue();
 			} catch (EntityNotFoundException e){
-				throw new IllegalArgumentException("NodeBase " + taskId + " hasn't been logged!", e);
+				throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
 			}
 	}
 
@@ -95,7 +95,7 @@ public class DatastorePipeDatastore implements PipeDatastore {
 			
 			
 			if(Boolean.TRUE.equals(subtask.getProperty(FINISHED))){
-				throw new IllegalStateException("NodeBase with index " + index + " has already finished!");
+				throw new IllegalStateException("Node with index " + index + " has already finished!");
 			}
 			subtask.setUnindexedProperty(FINISHED, Boolean.TRUE);
 			subtask.setUnindexedProperty(RESULT, result);
@@ -115,7 +115,7 @@ public class DatastorePipeDatastore implements PipeDatastore {
 			put(task);
 			return count.intValue();
 		} catch (EntityNotFoundException e){
-			throw new IllegalArgumentException("NodeBase " + taskId + " hasn't been logged!", e);
+			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
 		}
 	}
 
@@ -139,7 +139,7 @@ public class DatastorePipeDatastore implements PipeDatastore {
 			}
 			return Collections.unmodifiableList(ret);
 		} catch (EntityNotFoundException e){
-			throw new IllegalArgumentException("NodeBase " + taskId + " hasn't been logged!", e);
+			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
 		}
 	}
 	

@@ -16,82 +16,81 @@
 
 package eu.appsatori.pipes;
 
-public final class NodeDescriptor {
-	
-	public static class AtBuilder {
-		
-		private final String name;
-		
-		AtBuilder(String name) {
-			if(name == null){
-				throw new NullPointerException();
-			}
-			this.name = name;
-		}
-		
-		public NodeDescriptor run(Class<? extends NodeBase> nodeBase){
-			if(nodeBase == null){
-				throw new NullPointerException();
-			}
-			return new NodeDescriptor(name, nodeBase, NodeType.SERIAL);
-		}
-		
-		public NodeDescriptor fork(Class<? extends NodeBase> nodeBase){
-			if(nodeBase == null){
-				throw new NullPointerException();
-			}
-			return new NodeDescriptor(name, nodeBase, NodeType.PARALLEL);
-		}
-	}
+public final class NodeDescriptor<N extends Node<?>> {
 	
 	
 	private final String name;
-	private final Class<? extends NodeBase> nodeBase;
+	private final Class<N> node;
 	private final NodeType nodeType;
 	
 	private final String queue;
 	
-	NodeDescriptor(String name, Class<? extends NodeBase> nodeBase, NodeType type) {
+	public static <N extends Node<?>> NodeDescriptor<N> handler(Class<? extends Throwable> exception, Class<N> nodeBase, String queue){
+		return new NodeDescriptor<N>(exception.getName(), nodeBase, NodeType.EXCEPTION_HANDLER, queue);
+	}
+	
+	public static <N extends Node<?>> NodeDescriptor<N> handler(Class<? extends Throwable> exception, Class<N> nodeBase){
+		return new NodeDescriptor<N>(exception.getName(), nodeBase, NodeType.EXCEPTION_HANDLER);
+	}
+	
+	public static <N extends Node<?>> NodeDescriptor<N> parallel(String name, Class<N> nodeBase, String queue){
+		return new NodeDescriptor<N>(name, nodeBase, NodeType.PARALLEL, queue);
+	}
+	
+	public static <N extends Node<?>> NodeDescriptor<N> parallel(String name, Class<N> nodeBase){
+		return new NodeDescriptor<N>(name, nodeBase, NodeType.PARALLEL);
+	}
+	
+	public static <N extends Node<?>> NodeDescriptor<N> serial(String name, Class<N> nodeBase, String queue){
+		return new NodeDescriptor<N>(name, nodeBase, NodeType.SERIAL, queue);
+	}
+	
+	public static <N extends Node<?>> NodeDescriptor<N> serial(String name, Class<N> nodeBase){
+		return new NodeDescriptor<N>(name, nodeBase, NodeType.SERIAL);
+	}
+	
+	NodeDescriptor(String name, Class<N> nodeBase, NodeType type) {
 		this(name, nodeBase, type, "");
 	}
 	
-	NodeDescriptor(String name, Class<? extends NodeBase> nodeBase, NodeType type, String queue) {
+	NodeDescriptor(String name, Class<N> nodeBase, NodeType type, String queue) {
 		this.name = name;
-		this.nodeBase = nodeBase;
+		this.node = nodeBase;
 		this.nodeType = type;
 		this.queue = queue;
 	}
 	
-	public static <A, R> AtBuilder at(String name){
-		return new AtBuilder(name);
-	}
-
-	public static <A, R> AtBuilder on(Class<? extends Throwable> e){
-		return new AtBuilder(e.getName());
-	}
-
 	public String getName() {
 		return name;
 	}
 
-	public Class<? extends NodeBase> getTask() {
-		return nodeBase;
+	public Class<N> getNode() {
+		return node;
 	}
 	
-	public NodeType getTaskType() {
+	public NodeType getNodeType() {
 		return nodeType;
 	}
 	
-	
-	public NodeDescriptor inQueue(String queue){
-		return new NodeDescriptor(name, nodeBase, nodeType, queue);
-	}
 	
 	public String getQueue() {
 		return queue;
 	}
 	
-	
+	private N createTaskInstance() {
+		try {
+			return (N) getNode().newInstance();
+		} catch (InstantiationException e) {
+			throw new IllegalStateException("Cannot initiate instance " + getNode().getName() + " does it have parameterless constructor?");
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException("Cannot initiate instance " + getNode().getName() + " does it have parameterless constructor?");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <A> NodeResult execute(Object arg, int index) throws Exception {
+		return getNodeType().execute((Node<A>) createTaskInstance(), arg, index);
+	}
 	
 
 }
