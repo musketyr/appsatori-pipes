@@ -7,7 +7,7 @@ import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
 import spock.lang.Specification;
 
-class NodeTypeSpec extends Specification {
+class PipeTypeSpec extends Specification {
 	
 	LocalTaskQueueTestConfig config = new LocalTaskQueueTestConfig()
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
