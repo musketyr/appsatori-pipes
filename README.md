@@ -30,15 +30,57 @@ and proceed to next *node*.
 public class ParallelNode implements Node<ParallelPipe, String> {
 
  public NodeResult execute(ParallelPipe pipe, String param) {
-		return pipe.join(JoinNode.class, param.length());
-	}
+   return pipe.join(JoinNode.class, param.length());
+ }
 	
 }
 ```
 
-### App Engine Details
+The `JoinNode` will obtain the collection with the results of `ParallelNode` invocations
 
-## Costs
+```java
+public class JoinNode implements Node<SerialPipe, Collection<Integer>> {
+
+ public NodeResult execute(SerialPipe pipe, Collection<Integer> results) {
+   // do some magic with results = [5,9,5]
+   return pipe.finish();
+ }
+  
+}
+```
+
+Calling `pipe.finish()` terminates the pipe. 
+
+If you want to start a new pipe aside of existing use one of `run`, `spring`, `fork` methods of `Pipes` class. They behave
+exactly the same as returning result of *serial pipe* from the *node* execution.
+
+
+### Three ways of execution
+There are always three ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
+throught the *serial* or the *parallel pipe*.
+
+
+**Serial Pipes**
+
+1. direct chaining results to the next node using `run` method
+2. forking the results so each item will be handled separely using the `fork` method
+3. forking the results so each item will be handled separelly but only the first success task will proceed to next node using the `sprint` method
+  
+
+**Parallel Pipes**
+
+1. waiting unless all tasks have finished and continuing in parallel processing using the `next` method
+2. waiting unless all tasks have finished and passing collected result for serial processing using the `join` method
+3. waiting unless all tasks have finished and passing collected result for challange processing using the `sprint` method
+
+The framework is using generics heavily to check the *nodes/ are chained properly. For example you must pass collections
+to the `fork` and `sprint` methods and the following *node's* second parameter must be of the same type as the elements of
+supplied collection.
+
+
+## App Engine Details
+
+### Costs
 Serial pipes runs directly using
 [deffered tasks](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/taskqueue/DeferredTask.html)
 so the results are not stored into the datastore but count towards 
@@ -51,7 +93,7 @@ will they still cost you some money according to
 [billing policy](http://code.google.com/appengine/docs/billing.html). Use this framework wisely. It suites well 
 for use cases when running the tasks serially takes very long time like tens of seconds or even minutes.
 
-## Drawbacks
+### Drawbacks
 As the results of the parallel pipes are stored in the datastore some problems with conversions may occur. 
 
 All objects of types which are not supported by the datastore according to
@@ -61,8 +103,12 @@ This means that they are realtivelly safe to use but their representation mustn'
 
 Supported object are saved to the datastore directly. This means that 
 [some coversion usually happens](http://code.google.com/appengine/docs/java/datastore/entities.html#Properties_and_Value_Types).
-Strings are particulary vunerable to 500 characters limit so the framework always convertapp engine Text 
-to String before serving as a result.
+Strings are particulary vunerable to 500 characters limit so the framework always convert [app engine Text type](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/Text.html) 
+to String before serving so do not use 
+[app engine Text type](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/Text.html)
+directly result of parallel execution. 
+
+App Engine stores numbers as Longs and Doubles only. Use them directly for better performance.
 
 
 
