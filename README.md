@@ -67,9 +67,9 @@ You can specify the name of the queue where is the node located by using `Queue`
 
 
 ### Three ways of execution
-> Hint: The framework is using generics heavily to check the *nodes* are chained properly. Do not cheat them!
-> For example you must pass collections to the `fork` and `sprint` methods and the following *node's* second parameter must be of the same type as the elements of
-> supplied collection.
+> Hint: The framework is using generics heavily to check the *nodes* are chained properly. Use them properly to avoid
+> class cast exceptions.
+
 
 There are always three ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
 throught the *serial* or the *parallel pipe*.
@@ -111,6 +111,8 @@ will they still cost you some money according to
 for use cases when running the tasks serially takes very long time like tens of seconds or even minutes.
 
 ### Drawbacks
+> Hint: App Engine stores numbers as Longs and Doubles only. Use them directly for better performance. 
+
 As the results of the parallel pipes are stored in the datastore some problems with conversions may occur. 
 
 All objects of types which are not supported by the datastore according to
@@ -125,8 +127,7 @@ to String before serving so do not use
 [app engine Text type](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/Text.html)
 directly result of parallel execution. 
 
-App Engine stores numbers as Longs and Doubles only. Use them directly for better performance. Bytes, Shorts, Integers 
-and Floats are handled properly for you by the framework. You don't need to be afraid that they are accidentaly
+Bytes, Shorts, Integers and Floats are handled properly for you by the framework. You don't need to be afraid that they are accidentaly
 converted to Longs and Doubles by the datastore.
 
 
