@@ -26,7 +26,7 @@ import java.io.Serializable;
  * If you want to perform task in different queue than default one,
  * use {@link Queue} annotation on the implementation class.
  * 
- * @author Vladimir Orany
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
  *
  * @param <P> either {@link ParallelPipe} if the node is supposed to run in parallel or {@link SerialPipe} otherwise
  * @param <A> type of the argument passed to the node. Must be {@link Serializable}

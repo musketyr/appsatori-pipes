@@ -16,22 +16,37 @@
 
 package eu.appsatori.pipes
 
+import groovy.transform.Canonical;
 import spock.lang.Specification;
 
 abstract class PipeDatastoreSpec extends Specification{
+	
+	PipeDatastore pds = createDatastore()
+	
+	def "Handle serialization"(){
+		String te
+		String ptid = '__parallel_task__01__'
+		int parallelTasksCount = 1
+		MySerializable myser = new MySerializable("Hello")
+		
+		expect:
+		pds.logTaskStarted(ptid, parallelTasksCount)
+		!pds.logTaskFinished(ptid, 0, myser)
+		myser.text == pds.getTaskResults(ptid)[0].text
+	}
+	
 		
 	def "Handle parallel task"(){
-		PipeDatastore fds = createDatastore()
 		String ptid = '__parallel_task__01__'
 		int parallelTasksCount = 3
 		
 		expect:
-		true == fds.logTaskStarted(ptid, parallelTasksCount)
-		false == fds.logTaskStarted(ptid, parallelTasksCount)
-		3 == fds.getParallelTaskCount(ptid)
+		true == pds.logTaskStarted(ptid, parallelTasksCount)
+		false == pds.logTaskStarted(ptid, parallelTasksCount)
+		3 == pds.getParallelTaskCount(ptid)
 		
 		when:
-		fds.getTaskResults(ptid)
+		pds.getTaskResults(ptid)
 		
 		then:
 		thrown(IllegalStateException)
@@ -39,12 +54,12 @@ abstract class PipeDatastoreSpec extends Specification{
 		
 		
 		expect:
-		2 == fds.logTaskFinished(ptid, 0, 'first')
+		2 == pds.logTaskFinished(ptid, 0, 'first')
 		
 		
 		
 		when:
-		fds.getTaskResults(ptid)
+		pds.getTaskResults(ptid)
 		
 		then:
 		thrown(IllegalStateException)
@@ -52,32 +67,23 @@ abstract class PipeDatastoreSpec extends Specification{
 		
 		
 		expect:
-		1 == fds.logTaskFinished(ptid, 1, 'second')
+		1 == pds.logTaskFinished(ptid, 1, 'second')
 		
 		
 		
 		when:
-		fds.getTaskResults(ptid)
+		pds.getTaskResults(ptid)
 		
 		then:
 		thrown(IllegalStateException)
 		
-		
-		when:
-		fds.logTaskFinished(ptid, 2, new Boolean[0])
-		
 		then:
-		thrown(IllegalArgumentException)
-		
-		
-		
-		expect:
-		0 == fds.logTaskFinished(ptid, 2, 'third')
+		0 == pds.logTaskFinished(ptid, 2, 'third')
 		
 		
 		
 		when:
-		0 == fds.logTaskFinished(ptid, 0, 'one again')
+		0 == pds.logTaskFinished(ptid, 0, 'one again')
 		
 		then:
 		thrown(IllegalStateException)
@@ -85,14 +91,14 @@ abstract class PipeDatastoreSpec extends Specification{
 		
 		
 		when:
-		0 == fds.logTaskFinished(ptid, 3, 'fourth')
+		0 == pds.logTaskFinished(ptid, 3, 'fourth')
 		then:
 		thrown(IndexOutOfBoundsException)
 		
 		
 		
 		when:
-		fds.logTaskFinished(ptid + 'xyz', 1, 'third')
+		pds.logTaskFinished(ptid + 'xyz', 1, 'third')
 		
 		then:
 		thrown(IllegalArgumentException)
@@ -100,14 +106,14 @@ abstract class PipeDatastoreSpec extends Specification{
 		
 		
 		expect:
-		['first','second','third'] == fds.getTaskResults(ptid)
-		true == fds.clearTaskLog(ptid)
-		false == fds.clearTaskLog(ptid)
+		['first','second','third'] == pds.getTaskResults(ptid)
+		true == pds.clearTaskLog(ptid)
+		false == pds.clearTaskLog(ptid)
 		
 		
 		
 		when:
-		fds.getTaskResults(ptid)
+		pds.getTaskResults(ptid)
 		
 		then:
 		thrown(IllegalArgumentException)
@@ -115,4 +121,8 @@ abstract class PipeDatastoreSpec extends Specification{
 
 	protected abstract PipeDatastore createDatastore();
 	
+}
+
+@Canonical class MySerializable implements Serializable {
+	String text
 }

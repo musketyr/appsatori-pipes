@@ -16,12 +16,18 @@
 
 package eu.appsatori.pipes;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
 import com.google.appengine.api.NamespaceManager;
+import com.google.appengine.api.datastore.Blob;
+import com.google.appengine.api.datastore.DataTypeUtils;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -31,7 +37,10 @@ import com.google.appengine.api.datastore.ImplicitTransactionManagementPolicy;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.ReadPolicy;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 
 class DatastorePipeDatastore implements PipeDatastore {
@@ -45,6 +54,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 	private static final String FLOW_NAMESPACE = "eu_appsatori_gaeflow";
 	private static final String TASK_KIND = "task";
 	private static final String SUBTASK_KIND = "subtask";
+	private static final String SERIALIZED = "serialized";
 	private static final int RETRIES = 10;
 	
 	private final transient DatastoreService ds;
@@ -211,7 +221,12 @@ class DatastorePipeDatastore implements PipeDatastore {
 					throw new IllegalStateException("Node with index " + index + " has already finished!");
 				}
 				subtask.setUnindexedProperty(FINISHED, Boolean.TRUE);
-				subtask.setUnindexedProperty(RESULT, result);
+				if(result == null || DataTypeUtils.isSupportedType(result.getClass())){
+					subtask.setUnindexedProperty(RESULT, result);
+				} else if(Serializable.class.isAssignableFrom(result.getClass())){
+					subtask.setUnindexedProperty(SERIALIZED, true);
+					subtask.setUnindexedProperty(RESULT, serialize(result));
+				}
 				try {
 					put(subtask);
 				} catch (IllegalArgumentException e){
@@ -232,6 +247,24 @@ class DatastorePipeDatastore implements PipeDatastore {
 			}
 		} catch (EntityNotFoundException e){
 			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
+		}
+	}
+	
+	private Blob serialize(Object obj){
+		try {
+			ObjectOutputStream oos = null;
+			try {
+				ByteOutputStream bos = new ByteOutputStream();
+				oos = new ObjectOutputStream(bos);
+				oos.writeObject(obj);
+				return new Blob(bos.getBytes());
+			} finally {
+				if(oos != null){
+					oos.close();
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Exception reading object from datastore", e);
 		}
 	}
 
@@ -265,7 +298,13 @@ class DatastorePipeDatastore implements PipeDatastore {
 				List<Object> ret = new ArrayList<Object>(total.intValue());
 				for (int i = 0; i < total.intValue(); i++) {
 					Entity subtask = get(getKey(taskId, i));
-					ret.add(subtask.getProperty(RESULT));
+					Object result = subtask.getProperty(RESULT);
+					if(subtask.hasProperty(SERIALIZED) && result instanceof Blob){
+						result = deserialize((Blob)result);
+					} else if(Text.class.isAssignableFrom(result.getClass())){
+						result = ((Text)result).getValue();
+					}
+					ret.add(result);
 				}
 				return Collections.unmodifiableList(ret);
 			} finally {
@@ -273,6 +312,24 @@ class DatastorePipeDatastore implements PipeDatastore {
 			}
 		} catch (EntityNotFoundException e){
 			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
+		}
+	}
+	
+	private Object deserialize(Blob blob){
+		try {
+			ObjectInputStream ois = null;
+			try {
+				ois = new ObjectInputStream(new ByteInputStream(blob.getBytes(), blob.getBytes().length));
+				return ois.readObject();
+			} finally {
+				if(ois != null){
+					ois.close();
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Exception reading object from datastore", e);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Exception reading object from datastore", e);
 		}
 	}
 	

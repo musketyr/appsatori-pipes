@@ -16,6 +16,11 @@
 
 package eu.appsatori.pipes;
 
+/**
+ * The result of task executed in the node which is used to determine next flow of the pipe.
+ * 
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ */
 public class NodeResult {
 	
 	static final NodeResult END_RESULT = new NodeResult(PipeType.SERIAL, null, null);
@@ -41,23 +46,23 @@ public class NodeResult {
 		this.next = next;
 	}
 	
-	public boolean hasResult(){
+	boolean hasResult(){
 		return result != null;
 	}
 	
-	public Object getResult() {
+	Object getResult() {
 		return result;
 	}
 	
-	public boolean hasNext(){
+	boolean hasNext(){
 		return next != null;
 	}
 
-	public Class<? extends Node<?,?>> getNext() {
+	Class<? extends Node<?,?>> getNext() {
 		return next;
 	}
 	
-	public PipeType getType() {
+	PipeType getType() {
 		return type;
 	}
 
