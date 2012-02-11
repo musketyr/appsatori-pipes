@@ -32,7 +32,7 @@ public class PipesServlet extends HttpServlet {
 				resp.getWriter().append(msg);
 				return;
 			}
-			Pipe.getPipe().start((Class)cls);
+			Pipes.run((Class)cls);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			resp.getWriter().append("Node '"+ nodeName + "' started");
 		} catch (ClassNotFoundException e) {

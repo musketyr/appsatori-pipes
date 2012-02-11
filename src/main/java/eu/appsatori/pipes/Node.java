@@ -18,6 +18,6 @@ package eu.appsatori.pipes;
 
 public interface Node<A> {
 	
-	NodeResult<Node<A>> execute(Pipe pipe, A arg) throws Exception;
+	NodeResult execute(Pipe pipe, A arg) throws Exception;
 
 }

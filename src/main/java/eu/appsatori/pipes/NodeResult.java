@@ -1,27 +1,25 @@
 package eu.appsatori.pipes;
 
-public final class NodeResult<N extends Node<?>> {
+public final class NodeResult {
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static final NodeResult END_RESULT = new NodeResult(NodeType.SERIAL, null, null);
 	
 	private final Object result;
-	private final Class<N> next;
+	private final Class<? extends Node<?>> next;
 	private final NodeType type;
 	
-	public static <N extends Node<?>> NodeResult<N> create(NodeType type, Class<N> next){
+	public static NodeResult create(NodeType type, Class<? extends Node<?>> next){
 		return create(type, next, null);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static <N extends Node<?>> NodeResult<N> create(NodeType type, Class<N> next, Object result){
+	public static  NodeResult create(NodeType type, Class<? extends Node<?>> next, Object result){
 		if(next == null){
 			return END_RESULT;
 		}
-		return new NodeResult<N>(type, next, result);
+		return new NodeResult(type, next, result);
 	}
 	
-	private NodeResult(NodeType type, Class<N> next, Object result) {
+	private NodeResult(NodeType type, Class<? extends Node<?>> next, Object result) {
 		this.type = NodeType.SERIAL;
 		this.result = result;
 		this.next = next;
@@ -39,7 +37,7 @@ public final class NodeResult<N extends Node<?>> {
 		return next != null;
 	}
 
-	public Class<N> getNext() {
+	public Class<? extends Node<?>> getNext() {
 		return next;
 	}
 	
@@ -64,7 +62,7 @@ public final class NodeResult<N extends Node<?>> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NodeResult<?> other = (NodeResult<?>) obj;
+		NodeResult other = (NodeResult) obj;
 		if (next == null) {
 			if (other.next != null)
 				return false;

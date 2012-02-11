@@ -36,6 +36,23 @@ class Pipes {
 	
 	private Pipes() { }
 	
+	public static <R, N extends Node<R>> String run(Class<N> state){
+		return run(state, null);
+	}
+	
+	public static <R, N extends Node<R>> String run(Class<N> next, R result){
+		return start(NodeType.SERIAL, next, result);
+	}
+	
+	public static <R, N extends Node<R>> String fork(Class<N> state){
+		return fork(state, null);
+	}
+	
+	public static <R, N extends Node<R>> String fork(Class<N> next, R result){
+		return start(NodeType.PARALLEL, next, result);
+	}
+	
+	
 	static String start(NodeType type, Class<? extends Node<?>> node){
 		return start(type, node, null);
 	}
@@ -66,12 +83,12 @@ class Pipes {
 	}
 
 
-	public static PipeDatastore getPipeDatastore() {
+	static PipeDatastore getPipeDatastore() {
 		return pipeDatastore;
 	}
 
 
-	public static void setPipeDatastore(PipeDatastore pipeDatastore) {
+	static void setPipeDatastore(PipeDatastore pipeDatastore) {
 		if(pipeDatastore == null){
 			throw new NullPointerException("Pipes datastore cannot be null");
 		}
@@ -80,7 +97,7 @@ class Pipes {
 
 
 	
-	public static void resetDatastores(){
+	static void resetDatastores(){
 		pipeDatastore = new DatastorePipeDatastore();
 	}
 	

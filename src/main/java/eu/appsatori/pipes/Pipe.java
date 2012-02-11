@@ -25,32 +25,23 @@ public enum Pipe {
 		return Pipe.INSTANCE;
 	}
 	
-	public <R, N extends Node<R>> NodeResult<N> next(Class<N> state){
-		return next(state, null);
+	public <R, N extends Node<R>> NodeResult run(Class<N> state){
+		return run(state, null);
 	}
 	
-	public <R, N extends Node<R>> NodeResult<N> next(Class<N> next, R result){
+	public <R, N extends Node<R>> NodeResult run(Class<N> next, R result){
 		return NodeResult.create(NodeType.SERIAL, next, result);
 	}
 	
-	public <E, R extends Collection<E>, N extends Node<R>> NodeResult<N> fork(Class<N> next, R result){
+	public <E, R extends Collection<E>, N extends Node<R>> NodeResult fork(Class<N> next, R result){
 		return NodeResult.create(NodeType.PARALLEL, next, result);
 	}
 	
-	public <E, R extends Collection<E>, N extends Node<R>> NodeResult<N> join(Class<N> next, E result){
-		return NodeResult.create(NodeType.PARALLEL, next, result);
+	public <E, R extends Collection<E>, N extends Node<R>> NodeResult join(Class<N> next, E result){
+		return NodeResult.create(NodeType.SERIAL, next, result);
 	}
 	
-	public <R, N extends Node<R>> String start(Class<N> state){
-		return start(state, null);
-	}
-	
-	public <R, N extends Node<R>> String start(Class<N> next, R result){
-		return Pipes.start(NodeType.SERIAL, next, result);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public final <R, N extends Node<R>> NodeResult<N> finish(){
+	public final NodeResult finish(){
 		return NodeResult.END_RESULT;
 	}
 	

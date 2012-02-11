@@ -39,7 +39,7 @@ class NodeTask<A,N extends Node<A>> implements DeferredTask {
 	public void run() {
 		
 		try {
-			NodeResult<N> result = execute(type, arg, index);
+			NodeResult result = execute(type, arg, index);
 			if(!result.hasNext()){
 				type.handlePipeEnd(baseTaskId, index, result);
 				return;
@@ -60,7 +60,7 @@ class NodeTask<A,N extends Node<A>> implements DeferredTask {
 		}
 	}
 
-	public NodeResult<N> execute(NodeType type, Object arg, int index) throws Exception {
+	public NodeResult execute(NodeType type, Object arg, int index) throws Exception {
 		return type.execute(createTaskInstance(), arg, index);
 	}
 	

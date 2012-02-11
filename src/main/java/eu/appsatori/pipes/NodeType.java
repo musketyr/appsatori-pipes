@@ -31,8 +31,8 @@ enum NodeType {
 		}
 		
 		@SuppressWarnings("unchecked")
-		public <A, N extends Node<A>> NodeResult<N> execute(N taskInstance, Object arg, int index) throws Exception {
-			return (NodeResult<N>) taskInstance.execute(Pipe.INSTANCE, (A)ObjectsToIterables.getAt(index, arg));
+		public <A, N extends Node<A>> NodeResult execute(N taskInstance, Object arg, int index) throws Exception {
+			return taskInstance.execute(Pipe.INSTANCE, (A)ObjectsToIterables.getAt(index, arg));
 		}
 		
 		@Override
@@ -44,7 +44,7 @@ enum NodeType {
 		}
 		
 		@Override
-		public <N extends Node<?>> void handleNext(String baseTaskId, int index, NodeResult<N> result) {
+		public <N extends Node<?>> void handleNext(String baseTaskId, int index, NodeResult result) {
 			PipeDatastore fds = Pipes.getPipeDatastore();
 			int remaining = fds.logTaskFinished(baseTaskId, index, result.getResult());
 			if(remaining > 0){
@@ -64,13 +64,13 @@ enum NodeType {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <A, N extends Node<A>> NodeResult<N> execute(N taskInstance, Object arg, int index) throws Exception {
-		return (NodeResult<N>) taskInstance.execute(Pipe.INSTANCE, (A) arg);
+	public <A, N extends Node<A>> NodeResult execute(N taskInstance, Object arg, int index) throws Exception {
+		return taskInstance.execute(Pipe.INSTANCE, (A) arg);
 	}
 	
 	public void handlePipeEnd(String baseTaskId, int index, Object result){}
 
-	public <N extends Node<?>> void handleNext(String baseTaskId, int index, NodeResult<N> result) {
+	public <N extends Node<?>> void handleNext(String baseTaskId, int index, NodeResult result) {
 		Pipes.start(result.getType(), result.getNext(), result.getResult());
 		Pipes.getPipeDatastore().clearTaskLog(baseTaskId, true);
 	}
