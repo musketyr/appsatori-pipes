@@ -1,11 +1,14 @@
 package eu.appsatori.pipes;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import eu.appsatori.pipes.NodeDatastore;
 import eu.appsatori.pipes.NodeDescriptor;
@@ -21,6 +24,25 @@ public class PipesServlet extends HttpServlet {
 		initNodeDatastore(config.getInitParameter("nodes-datastore"));
 		initPipeDatastore(config.getInitParameter("pipes-datastore"));
 		initNodes(config.getInitParameter("nodes-packages"));
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		String nodeName = req.getParameter("node");
+		if(nodeName == null){
+			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			resp.getWriter().append("Use 'node' parameter to specify node you want to start!");
+			return;
+		}
+		try {
+			Pipes.start(nodeName);
+			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			resp.getWriter().append("Node '"+ nodeName + "' started");
+		} catch (IllegalArgumentException e) {
+			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			resp.getWriter().append("Node '"+ nodeName + "' doesn't exist!");
+		}
 	}
 
 	private void initNodeDatastore(String initParameter) {

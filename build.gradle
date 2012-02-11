@@ -5,7 +5,7 @@ apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'code-quality'
 
-version = '0.2.0'
+version = '0.3.0'
 
 //sourceCompatibility	= '1.6'
 //targetCompatibility = '1.6'
@@ -21,12 +21,12 @@ dependencies {
 
     compile "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
     compile "com.google.appengine:appengine-api-labs:$gaeVersion"
+    compile 'javax.servlet:servlet-api:2.5'
 	
     testCompile 'org.spockframework:spock-core:0.5-groovy-1.8', {
         exclude group: 'org.codehaus.groovy', name: 'groovy-all'
     }
     testCompile "com.google.appengine:appengine-api-stubs:$gaeVersion"
     testCompile "com.google.appengine:appengine-testing:$gaeVersion"
-    testCompile 'javax.servlet:servlet-api:2.5'
 }
 

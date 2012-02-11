@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.RetryOptions;
 import com.google.appengine.api.taskqueue.TaskOptions;
 
 
@@ -98,7 +99,7 @@ class Pipes {
 	private static <N extends Node<?>> void startTask(Queue q, NodeDescriptor<N> node,
 			Object arg, String taskId, int index) {
 		NodeTask nodeTask = new NodeTask(node.getName(), taskId, index, arg);
-		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeTask);
+		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeTask).retryOptions(RetryOptions.Builder.withTaskRetryLimit(0));
 		q.add(options);
 	}
 
