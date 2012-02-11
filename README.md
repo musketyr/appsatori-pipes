@@ -9,6 +9,7 @@ The key concepts of the engine are
   * easy concurrency
   * type safety
   * simple and intuitive usage
+  * small with no external dependencies
   * hiding *the most of* [Google App Engine](http://code.google.com/appengine/) speciallities
 
 ## Introduction
