@@ -54,7 +54,8 @@ abstract class PipeDatastoreSpec extends Specification{
 		Character.valueOf((char)'c')| Character
 		Long.valueOf((long)1246)	| Long
 		Float.valueOf((float)12.22)	| Float
-		Double.valueOf((double)12.1)| Double  
+		Double.valueOf((double)12.1)| Double 
+		new byte[10]				| byte[].class
 		
 	}
 	

@@ -320,8 +320,10 @@ class DatastorePipeDatastore implements PipeDatastore {
 						result = deserialize((Blob)result);
 					} else if(Text.class.isAssignableFrom(result.getClass())){
 						result = ((Text)result).getValue();
-					} else if(subtask.hasProperty(NUMERIC_TYPE)){
-						Long numType = (Long) subtask.getProperty(NUMERIC_TYPE);
+					}
+					Object numTypeObject = (Long) subtask.getProperty(NUMERIC_TYPE);
+					if(numTypeObject != null){
+						Long numType = (Long) numTypeObject;
 						switch (numType.intValue()) {
 						case BYTE:
 							result = Byte.valueOf(((Number)result).byteValue());
