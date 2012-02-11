@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.stubs
+package eu.appsatori.pipes;
 
-import eu.appsatori.pipes.Node;
-import eu.appsatori.pipes.NodeResult;
-import eu.appsatori.pipes.Pipe;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
 
-class StubTask3 implements Node {
-
-	NodeResult execute(Pipe pipe,  arg0) {
-		// TODO Groovy Auto-generated method stub
-		// Only partially implemented. Perform organize imports
-		// to properly import parameter and return types
+class QueueCleaner {
+	
+	private QueueCleaner() {}
+	
+	public static <A, R> void clean(String queue, String baseTaskId, int tasksCount){
+		Queue q;
+		if("".equals(queue) || queue == null){
+			q = QueueFactory.getDefaultQueue();
+		} else {
+			q = QueueFactory.getQueue(queue);
+		}
+		for (int i = 0; i < tasksCount; i++) {
+			q.deleteTask("" + i + "_" + baseTaskId);
+		}
 	}
 	
+
 }

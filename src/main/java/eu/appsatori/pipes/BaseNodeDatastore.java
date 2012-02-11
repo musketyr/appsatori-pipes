@@ -13,11 +13,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package eu.appsatori.pipes.impl;
+ */package eu.appsatori.pipes;
 
-import eu.appsatori.pipes.Node;
-import eu.appsatori.pipes.NodeDescriptor;
-import eu.appsatori.pipes.NodeDatastore;
 
  /**
   * Base implementation of {@link NodeDatastore}.

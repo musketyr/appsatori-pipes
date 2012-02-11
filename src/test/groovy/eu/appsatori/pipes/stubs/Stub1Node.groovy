@@ -20,10 +20,10 @@ import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
 import eu.appsatori.pipes.Pipe;
 
-class FailingTask implements Node {
+class Stub1Node implements Node {
 	
 	NodeResult execute(Pipe pipe, Object text) {
-		throw new IllegalArgumentException()
+		pipe.next('two', text.length())
 	}
 
 }

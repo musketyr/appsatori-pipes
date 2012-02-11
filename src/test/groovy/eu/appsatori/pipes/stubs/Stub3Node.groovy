@@ -18,9 +18,12 @@ package eu.appsatori.pipes.stubs
 
 import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.Parallel;
 import eu.appsatori.pipes.Pipe;
 
-class StubTask2 implements Node {
+
+@Parallel
+class Stub3Node implements Node {
 
 	NodeResult execute(Pipe pipe,  arg0) {
 		// TODO Groovy Auto-generated method stub

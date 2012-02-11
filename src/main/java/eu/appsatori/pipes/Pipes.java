@@ -22,10 +22,8 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 
-import eu.appsatori.pipes.ds.DatastorePipeDatastore;
-import eu.appsatori.pipes.mem.InMemoryNodeDatastore;
 
-public class Pipes {
+class Pipes {
 
 	private static final Pattern TASK_NAME_PATTERN = Pattern.compile("[^0-9a-zA-Z\\-\\_]");  
 

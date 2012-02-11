@@ -22,7 +22,7 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
-import eu.appsatori.pipes.stubs.StubTask1;
+import eu.appsatori.pipes.stubs.Stub1Node;
 import eu.appsatori.pipes.PipeDatastore;
 import eu.appsatori.pipes.NodeDescriptor;
 
@@ -43,7 +43,7 @@ class PipesExecutorSpec extends Specification {
 		
 		then:
 		1 * fds.logTaskStarted(_, 1)
-		1 * nds.find('start') >> serial('start', StubTask1)
+		1 * nds.find('start') >> serial('start', Stub1Node)
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
@@ -53,7 +53,7 @@ class PipesExecutorSpec extends Specification {
 		
 		then:
 		1 * fds.logTaskStarted(_, 3)
-		1 * nds.find('start') >> parallel('start', StubTask1)
+		1 * nds.find('start') >> parallel('start', Stub1Node)
 		3 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	

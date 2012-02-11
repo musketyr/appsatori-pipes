@@ -18,10 +18,10 @@ package eu.appsatori.pipes
 
 import static eu.appsatori.pipes.NodeDescriptor.*;
 
-import eu.appsatori.pipes.stubs.StubTask1;
-import eu.appsatori.pipes.stubs.StubTask2;
-import eu.appsatori.pipes.stubs.StubTask3;
-import eu.appsatori.pipes.stubs.StubTask4;
+import eu.appsatori.pipes.stubs.Stub1Node;
+import eu.appsatori.pipes.stubs.Stub2Node;
+import eu.appsatori.pipes.stubs.Stub3Node;
+import eu.appsatori.pipes.stubs.Stub4Node;
 import eu.appsatori.pipes.NodeDescriptor;
 import eu.appsatori.pipes.NodeDatastore;
 import eu.appsatori.pipes.NodeType;
@@ -31,15 +31,15 @@ import spock.lang.Unroll;
 abstract class NodeDatastoreSpec extends Specification{
 	
 	NodeDatastore tds = createNodeDatastore(
-		serial('one',StubTask1),
-		parallel('two',StubTask2),
-		handler(RuntimeException,StubTask1),
-		handler(IllegalArgumentException,StubTask2)
+		serial('one',Stub1Node),
+		parallel('two',Stub2Node),
+		handler(RuntimeException,Stub1Node),
+		handler(IllegalArgumentException,Stub2Node)
 	)
 	
 	def "Add node"(){
 		expect:
-		tds.add(serial('three',StubTask1))
+		tds.add(serial('three',Stub1Node))
 		tds.find('three')
 	}
 	
@@ -49,7 +49,7 @@ abstract class NodeDatastoreSpec extends Specification{
 		expect:
 		n.name == 'one'
 		n.nodeType == NodeType.SERIAL
-		n.node == StubTask1
+		n.node == Stub1Node
 	}
 	
 	def "Return null if there is no such transition"(){

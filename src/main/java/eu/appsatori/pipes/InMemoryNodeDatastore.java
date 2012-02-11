@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.mem;
+package eu.appsatori.pipes;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.appsatori.pipes.Node;
-import eu.appsatori.pipes.NodeDatastore;
-import eu.appsatori.pipes.NodeDescriptor;
-import eu.appsatori.pipes.impl.BaseNodeDatastore;
 
 @SuppressWarnings("rawtypes")
 public class InMemoryNodeDatastore extends BaseNodeDatastore implements NodeDatastore {
 	
-	private final Map<String, NodeDescriptor> transitions;
+	private final Map<String, NodeDescriptor> transitions = new HashMap<String, NodeDescriptor>();
+	
+	public InMemoryNodeDatastore() {}
 	
 	public InMemoryNodeDatastore(NodeDescriptor<?>... tranistions){
-		this.transitions = new HashMap<String, NodeDescriptor>(tranistions.length);
-		
 		for(NodeDescriptor<?> t: tranistions){
 			this.transitions.put(t.getName(), t);
 		}
-		
 	}
 	
 	public final boolean add(NodeDescriptor node) {

@@ -19,11 +19,15 @@ package eu.appsatori.pipes.stubs
 import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
 import eu.appsatori.pipes.Pipe;
+import eu.appsatori.pipes.Serial;
 
-class StubTask1 implements Node {
-	
-	NodeResult execute(Pipe pipe, Object text) {
-		pipe.next('two', text.length())
+@Serial('two')
+class Stub2Node implements Node {
+
+	NodeResult execute(Pipe pipe,  arg0) {
+		// TODO Groovy Auto-generated method stub
+		// Only partially implemented. Perform organize imports
+		// to properly import parameter and return types
 	}
-
+	
 }

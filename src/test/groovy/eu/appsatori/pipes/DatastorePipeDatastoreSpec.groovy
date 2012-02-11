@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.ds
+package eu.appsatori.pipes
 
 import java.security.KeyFactory;
 
@@ -31,8 +31,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper
 
 import eu.appsatori.pipes.PipeDatastore;
-import eu.appsatori.pipes.PipeDatastoreSpec;
-import eu.appsatori.pipes.ds.DatastorePipeDatastore;
 
 class DatastorePipeDatastoreSpec extends PipeDatastoreSpec {
 	

@@ -17,7 +17,10 @@
 package eu.appsatori.pipes
 
 import static eu.appsatori.pipes.NodeDescriptor.*;
-import eu.appsatori.pipes.stubs.StubTask1;
+import eu.appsatori.pipes.stubs.Stub1Node;
+import eu.appsatori.pipes.stubs.Stub2Node;
+import eu.appsatori.pipes.stubs.Stub3Node;
+import eu.appsatori.pipes.stubs.Stub4Node;
 import eu.appsatori.pipes.NodeType;
 
 import spock.lang.Specification;
@@ -28,43 +31,59 @@ class NodeDescriptorSpec extends Specification {
 	
 	def "Simple serial node"(){
 		when:
-		def n = serial 'one', StubTask1
+		def n = serial 'one', Stub1Node
 		
 		then:
 		n.name == 'one'
-		n.node == StubTask1
+		n.node == Stub1Node
 		n.nodeType == NodeType.SERIAL
 	}
 	
 	def "Simple exception handler"(){
 		when:
-		def n = handler IllegalArgumentException,  StubTask1
+		def n = handler IllegalArgumentException,  Stub1Node
 		
 		then:
 		n.name == IllegalArgumentException.name
-		n.node == StubTask1
+		n.node == Stub1Node
 		n.nodeType == NodeType.SERIAL
 	}
 	
 	def "Simple serial node with target"(){
 		when:
-		def n = serial 'two', StubTask1, 'sync'
+		def n = serial 'two', Stub1Node, 'sync'
 		
 		then:
 		n.name == 'two'
-		n.node == StubTask1
+		n.node == Stub1Node
 		n.nodeType == NodeType.SERIAL
 		n.queue == 'sync'
 	}
 	
 	def "Simple parallel node"(){
 		when:
-		def n = parallel 'three', StubTask1
+		def n = parallel 'three', Stub1Node
 		
 		then:
 		n.name == 'three'
-		n.node == StubTask1
+		n.node == Stub1Node
 		n.nodeType == NodeType.PARALLEL
+	}
+	
+	def "From type"(){
+		when:
+		NodeDescriptor n = from node.node
+		
+		then:
+		n == node
+		
+		where:
+		node << [
+			new NodeDescriptor('Stub1', Stub1Node, NodeType.SERIAL, ''),
+			new NodeDescriptor('two', Stub2Node, NodeType.SERIAL, ''),
+			new NodeDescriptor('Stub3', Stub3Node, NodeType.PARALLEL, ''),
+			new NodeDescriptor('four', Stub4Node, NodeType.PARALLEL, 'queue')
+		]
 	}
 	
 }

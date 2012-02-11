@@ -20,9 +20,9 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
-import eu.appsatori.pipes.stubs.FailingTask;
-import eu.appsatori.pipes.stubs.StubTask1;
-import eu.appsatori.pipes.stubs.StubTask2;
+import eu.appsatori.pipes.stubs.FailingNode;
+import eu.appsatori.pipes.stubs.Stub1Node;
+import eu.appsatori.pipes.stubs.Stub2Node;
 import eu.appsatori.pipes.PipeDatastore;
 import eu.appsatori.pipes.NodeDescriptor;
 import eu.appsatori.pipes.NodeDatastore;
@@ -50,8 +50,8 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def 'Execute serial task'(){
-		NodeDescriptor node1 = NodeDescriptor.serial('one',StubTask1)
-		NodeDescriptor node2 = NodeDescriptor.serial('two',StubTask2)
+		NodeDescriptor node1 = NodeDescriptor.serial('one',Stub1Node)
+		NodeDescriptor node2 = NodeDescriptor.serial('two',Stub2Node)
 		NodeTask executor = new NodeTask('one', 'taskid', 0, 'hello')
 		
 		expect:
@@ -70,8 +70,8 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def 'Execute unfisished parallel task'(){
-		NodeDescriptor node1 = NodeDescriptor.parallel('one',StubTask1)
-		NodeDescriptor node2 = NodeDescriptor.serial('two',StubTask2)
+		NodeDescriptor node1 = NodeDescriptor.parallel('one',Stub1Node)
+		NodeDescriptor node2 = NodeDescriptor.serial('two',Stub2Node)
 		NodeTask executor = new NodeTask('one', 'taskid', 0, 'hello')
 		
 		expect:
@@ -89,8 +89,8 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def 'Execute fisished parallel task'(){
-		NodeDescriptor node1 = NodeDescriptor.parallel('one', StubTask1)
-		NodeDescriptor node2 = NodeDescriptor.serial('two', StubTask2)
+		NodeDescriptor node1 = NodeDescriptor.parallel('one', Stub1Node)
+		NodeDescriptor node2 = NodeDescriptor.serial('two', Stub2Node)
 		NodeTask executor = new NodeTask('one', 'taskid', 0, 'hello')
 		
 		expect:

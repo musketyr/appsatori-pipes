@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.ds;
+package eu.appsatori.pipes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +33,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.ReadPolicy;
 import com.google.appengine.api.datastore.Transaction;
 
-import eu.appsatori.pipes.PipeDatastore;
 
 public class DatastorePipeDatastore implements PipeDatastore {
 	

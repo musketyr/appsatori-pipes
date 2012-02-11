@@ -16,7 +16,6 @@
 
 package eu.appsatori.pipes;
 
-import eu.appsatori.pipes.util.ObjectsToIterables;
 
 public enum NodeType {
 	SERIAL, 

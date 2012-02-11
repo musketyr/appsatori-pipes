@@ -1,4 +1,4 @@
-package eu.appsatori.pipes.util
+package eu.appsatori.pipes
 
 import spock.lang.Specification
 

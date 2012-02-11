@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.mem
+package eu.appsatori.pipes.stubs
 
-import eu.appsatori.pipes.NodeDescriptor
-import eu.appsatori.pipes.NodeDatastore;
-import eu.appsatori.pipes.NodeDatastoreSpec;
-import eu.appsatori.pipes.mem.InMemoryNodeDatastore;
+import eu.appsatori.pipes.Node;
+import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.Parallel;
+import eu.appsatori.pipes.Pipe;
+import eu.appsatori.pipes.Queue;
 
-class InMemoryNodeDatastoreSpec extends NodeDatastoreSpec {
+@Parallel('four')
+@Queue('queue')
+class Stub4Node implements Node {
 
-	@Override
-	protected NodeDatastore createNodeDatastore(NodeDescriptor... transitions) {
-		return new InMemoryNodeDatastore(transitions);
+	NodeResult execute(Pipe pipe,  arg0) {
+		// TODO Groovy Auto-generated method stub
+		// Only partially implemented. Perform organize imports
+		// to properly import parameter and return types
 	}
-
+	
 }

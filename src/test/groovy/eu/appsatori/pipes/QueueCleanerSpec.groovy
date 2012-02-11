@@ -1,11 +1,10 @@
-package eu.appsatori.pipes.util
+package eu.appsatori.pipes
 
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
-import eu.appsatori.pipes.util.QueueCleaner;
 
 import spock.lang.Specification;
 

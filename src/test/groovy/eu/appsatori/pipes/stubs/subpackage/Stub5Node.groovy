@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes.stubs
+package eu.appsatori.pipes.stubs.subpackage
 
 import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.Parallel;
 import eu.appsatori.pipes.Pipe;
+import eu.appsatori.pipes.Queue;
 
-class StubTask4 implements Node {
+@Parallel('four')
+@Queue('queue')
+class Stub5Node implements Node {
 
 	NodeResult execute(Pipe pipe,  arg0) {
 		// TODO Groovy Auto-generated method stub
