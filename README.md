@@ -13,6 +13,7 @@ The key concepts of the engine are
 
 ## Introduction
 ### Fork-Join Example
+[Hint: Check a few test nodes to find out more examples](https://github.com/musketyr/appsatori-pipes/tree/master/src/test/java/eu/appsatori/pipes/sample)
 Let's see a little fork-join example first. To run some operation in parallel you need to create a `Node` 
 and then run `fork` method of the facade class `Pipes`.
 
@@ -75,6 +76,7 @@ throught the *serial* or the *parallel pipe*.
 1. waiting unless all tasks have finished and continuing in parallel processing using the `next` method
 2. waiting unless all tasks have finished and passing collected result for serial processing using the `join` method
 3. waiting unless all tasks have finished and passing collected result for challange processing using the `sprint` method
+
 
 The framework is using generics heavily to check the *nodes* are chained properly. For example you must pass collections
 to the `fork` and `sprint` methods and the following *node's* second parameter must be of the same type as the elements of
