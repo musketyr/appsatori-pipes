@@ -1,6 +1,6 @@
 package eu.appsatori.pipes
 
-import spock.lang.Specification
+import spock.lang.Specification;
 
 class ObjectsToIterablesSpec extends Specification {
 	

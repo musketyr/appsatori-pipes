@@ -16,17 +16,13 @@
 
 package eu.appsatori.pipes
 
-import static eu.appsatori.pipes.NodeDescriptor.*;
+import spock.lang.Specification;
 
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
 import eu.appsatori.pipes.stubs.Stub1Node;
-import eu.appsatori.pipes.PipeDatastore;
-import eu.appsatori.pipes.NodeDescriptor;
-
-import spock.lang.Specification
 
 class PipesExecutorSpec extends Specification {
 	
@@ -34,32 +30,28 @@ class PipesExecutorSpec extends Specification {
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
 	
 	PipeDatastore fds = Mock()
-	NodeDatastore nds = Mock()
 	
 	
 	def "Executes serial flow"(){
 		when:
-		Pipes.start('start', 'hello')
+		Pipes.start(NodeType.SERIAL, Stub1Node, 'hello')
 		
 		then:
 		1 * fds.logTaskStarted(_, 1)
-		1 * nds.find('start') >> serial('start', Stub1Node)
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
 	def "Executes parallel flow"(){
 		when:
-		Pipes.start('start', ['hello', 'world', '!'])
+		Pipes.start(NodeType.PARALLEL, Stub1Node, ['hello', 'world', '!'])
 		
 		then:
 		1 * fds.logTaskStarted(_, 3)
-		1 * nds.find('start') >> parallel('start', Stub1Node)
 		3 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
 	def setup(){
 		Pipes.setPipeDatastore(fds)
-		Pipes.setNodeDatastore(nds)
 		helper.setUp()
 	}
 	

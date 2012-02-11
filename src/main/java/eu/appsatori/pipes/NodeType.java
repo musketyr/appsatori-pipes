@@ -17,7 +17,7 @@
 package eu.appsatori.pipes;
 
 
-public enum NodeType {
+enum NodeType {
 	SERIAL, 
 	PARALLEL {
 		@Override
@@ -31,10 +31,8 @@ public enum NodeType {
 		}
 		
 		@SuppressWarnings("unchecked")
-		@Override
-		public  <A> NodeResult execute(Node<A> taskInstance, Object arg, int index)
-				throws Exception {
-			return taskInstance.execute(Pipe.INSTANCE, (A) ObjectsToIterables.getAt(index, arg));
+		public <A, N extends Node<A>> NodeResult<N> execute(N taskInstance, Object arg, int index) throws Exception {
+			return (NodeResult<N>) taskInstance.execute(Pipe.INSTANCE, (A)ObjectsToIterables.getAt(index, arg));
 		}
 		
 		@Override
@@ -46,13 +44,13 @@ public enum NodeType {
 		}
 		
 		@Override
-		public void handleNext(String baseTaskId, int index, NodeResult result) {
+		public <N extends Node<?>> void handleNext(String baseTaskId, int index, NodeResult<N> result) {
 			PipeDatastore fds = Pipes.getPipeDatastore();
 			int remaining = fds.logTaskFinished(baseTaskId, index, result.getResult());
 			if(remaining > 0){
 				return;
 			}
-			Pipes.start(result.getNext(), fds.getTaskResults(baseTaskId));
+			Pipes.start(result.getType(), result.getNext(), fds.getTaskResults(baseTaskId));
 			fds.clearTaskLog(baseTaskId);
 		}
 	};
@@ -66,14 +64,14 @@ public enum NodeType {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <A> NodeResult execute(Node<A> taskInstance, Object arg, int index) throws Exception {
-		return taskInstance.execute(Pipe.INSTANCE, (A) arg);
+	public <A, N extends Node<A>> NodeResult<N> execute(N taskInstance, Object arg, int index) throws Exception {
+		return (NodeResult<N>) taskInstance.execute(Pipe.INSTANCE, (A) arg);
 	}
 	
 	public void handlePipeEnd(String baseTaskId, int index, Object result){}
 
-	public void handleNext(String baseTaskId, int index, NodeResult result) {
-		Pipes.start(result.getNext(), result.getResult());
+	public <N extends Node<?>> void handleNext(String baseTaskId, int index, NodeResult<N> result) {
+		Pipes.start(result.getType(), result.getNext(), result.getResult());
 		Pipes.getPipeDatastore().clearTaskLog(baseTaskId, true);
 	}
 

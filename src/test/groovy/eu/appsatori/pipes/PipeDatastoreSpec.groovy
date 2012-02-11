@@ -16,7 +16,6 @@
 
 package eu.appsatori.pipes
 
-import eu.appsatori.pipes.PipeDatastore;
 import spock.lang.Specification;
 
 abstract class PipeDatastoreSpec extends Specification{

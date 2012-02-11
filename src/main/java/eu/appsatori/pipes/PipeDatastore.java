@@ -21,7 +21,7 @@ import java.util.List;
  * Datastore to store pipe states and results.
  * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
  */
-public interface PipeDatastore {
+interface PipeDatastore {
 	
 	/**
 	 * Logs the start of the task execution.

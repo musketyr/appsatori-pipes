@@ -1,23 +1,28 @@
 package eu.appsatori.pipes;
 
-public final class NodeResult {
-	public static final NodeResult END_RESULT = new NodeResult(null, null);
+public final class NodeResult<N extends Node<?>> {
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static final NodeResult END_RESULT = new NodeResult(NodeType.SERIAL, null, null);
 	
 	private final Object result;
-	private final String next;
+	private final Class<N> next;
+	private final NodeType type;
 	
-	public static NodeResult create(String next){
-		return create(next, null);
+	public static <N extends Node<?>> NodeResult<N> create(NodeType type, Class<N> next){
+		return create(type, next, null);
 	}
 	
-	public static NodeResult create(String next, Object result){
+	@SuppressWarnings("unchecked")
+	public static <N extends Node<?>> NodeResult<N> create(NodeType type, Class<N> next, Object result){
 		if(next == null){
 			return END_RESULT;
 		}
-		return new NodeResult(next, result);
+		return new NodeResult<N>(type, next, result);
 	}
 	
-	private NodeResult(String next, Object result) {
+	private NodeResult(NodeType type, Class<N> next, Object result) {
+		this.type = NodeType.SERIAL;
 		this.result = result;
 		this.next = next;
 	}
@@ -34,8 +39,12 @@ public final class NodeResult {
 		return next != null;
 	}
 
-	public String getNext() {
+	public Class<N> getNext() {
 		return next;
+	}
+	
+	public NodeType getType() {
+		return type;
 	}
 
 	@Override
@@ -55,7 +64,7 @@ public final class NodeResult {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NodeResult other = (NodeResult) obj;
+		NodeResult<?> other = (NodeResult<?>) obj;
 		if (next == null) {
 			if (other.next != null)
 				return false;

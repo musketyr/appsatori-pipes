@@ -34,7 +34,7 @@ import com.google.appengine.api.datastore.ReadPolicy;
 import com.google.appengine.api.datastore.Transaction;
 
 
-public class DatastorePipeDatastore implements PipeDatastore {
+class DatastorePipeDatastore implements PipeDatastore {
 	
 	private static final String FINISHED = "finished";
 	private static final Long ZERO = Long.valueOf(0);

@@ -29,7 +29,6 @@ class Pipes {
 	private static final Pattern TASK_NAME_PATTERN = Pattern.compile("[^0-9a-zA-Z\\-\\_]");  
 
 	private static PipeDatastore pipeDatastore;
-	private static NodeDatastore nodeDatastore;
 	
 	static {
 		resetDatastores();
@@ -37,32 +36,33 @@ class Pipes {
 	
 	private Pipes() { }
 	
-	
-	static String start(String node){
-		return start(node, null);
+	static String start(NodeType type, Class<? extends Node<?>> node){
+		return start(type, node, null);
 	}
 	
-	static <N extends Node<?>> String start(String nodeName, Object arg){
-		NodeDescriptor<N> node = nodeDatastore.find(nodeName);
-		if(node == null){
-			throw new IllegalArgumentException("Trying to run nonexisting node "  + nodeName + "!");
-		}
+	static <N extends Node<?>> String start(NodeType type, Class<? extends Node<?>> node, Object arg){
 		String taskId = getUniqueTaskId(node.getName());
 		Queue q = getQueue(node);
-		int total = node.getNodeType().getParallelTasksCount(arg);
+		int total = type.getParallelTasksCount(arg);
 		pipeDatastore.logTaskStarted(taskId, total);
 		for (int i = 0; i < total; i++) {
-			startTask(q, node, arg, taskId, i);
+			startTask(q, type, node, arg, taskId, i);
 		}
 		return taskId;
 	}
 	
-	static <N extends Node<?>> String handleException(Throwable e){
-		NodeDescriptor<N> handler = nodeDatastore.find(e.getClass());
-		if(handler == null){
+	static <N extends Node<?>> String handleException(Class<? extends Node<?>> node, Throwable e){
+		if(!node.isAnnotationPresent(ExceptionHandler.class)){
 			throw new RuntimeException("Exception executing node. No exception handler defined.", e);
 		}
-		return start(handler.getName(), e);
+		
+		for(Class<Node<? extends Throwable>> handler : node.getAnnotation(ExceptionHandler.class).value()){
+			Class<?> cls = (Class<?>) handler.getTypeParameters()[0].getBounds()[0];
+			if(cls.isAssignableFrom(e.getClass())){
+				return start(NodeType.SERIAL, handler, e);
+			}
+		}
+		throw new RuntimeException("Exception executing node. No exception handler defined.", e);
 	}
 
 
@@ -79,34 +79,28 @@ class Pipes {
 	}
 
 
-	public static NodeDatastore getNodeDatastore() {
-		return nodeDatastore;
-	}
-
-
-	public static void setNodeDatastore(NodeDatastore nodeDatastore) {
-		if(nodeDatastore == null){
-			throw new NullPointerException("Node datastore cannot be null");
-		}
-		Pipes.nodeDatastore = nodeDatastore;
-	}
 	
 	public static void resetDatastores(){
 		pipeDatastore = new DatastorePipeDatastore();
-		nodeDatastore = new InMemoryNodeDatastore();
 	}
 	
-	private static <N extends Node<?>> void startTask(Queue q, NodeDescriptor<N> node,
-			Object arg, String taskId, int index) {
-		NodeTask nodeTask = new NodeTask(node.getName(), taskId, index, arg);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static void startTask(Queue q, NodeType type, Class node, Object arg, String taskId, int index) {
+		NodeTask nodeTask = new NodeTask(type, node, taskId, index, arg);
 		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeTask).retryOptions(RetryOptions.Builder.withTaskRetryLimit(0));
 		q.add(options);
 	}
 
-	private static <N extends Node<?>> Queue getQueue(NodeDescriptor<N> node) {
+	private static <N extends Node<?>> Queue getQueue(Class<? extends Node<?>> node) {
+		String name = "";
+		
+		if(node.isAnnotationPresent(eu.appsatori.pipes.Queue.class)){
+			name = node.getAnnotation(eu.appsatori.pipes.Queue.class).value();
+		}
+		
 		Queue q = QueueFactory.getDefaultQueue();
-		if(!"".equals(node.getQueue())){
-			q = QueueFactory.getQueue(node.getQueue());
+		if(!"".equals(name)){
+			q = QueueFactory.getQueue(name);
 		}
 		return q;
 	}

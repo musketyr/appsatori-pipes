@@ -18,12 +18,10 @@ package eu.appsatori.pipes.stubs.subpackage
 
 import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
-import eu.appsatori.pipes.Parallel;
 import eu.appsatori.pipes.Pipe;
-import eu.appsatori.pipes.Queue;
 
-@Parallel('four')
-@Queue('queue')
+
+@eu.appsatori.pipes.Queue('queue')
 class Stub5Node implements Node {
 
 	NodeResult execute(Pipe pipe,  arg0) {

@@ -19,9 +19,7 @@ package eu.appsatori.pipes.stubs
 import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
 import eu.appsatori.pipes.Pipe;
-import eu.appsatori.pipes.Serial;
 
-@Serial('two')
 class Stub2Node implements Node {
 
 	NodeResult execute(Pipe pipe,  arg0) {

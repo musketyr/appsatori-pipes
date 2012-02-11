@@ -16,6 +16,8 @@
 
 package eu.appsatori.pipes;
 
+import java.util.Collection;
+
 public enum Pipe {
 	INSTANCE;
 	
@@ -23,24 +25,32 @@ public enum Pipe {
 		return Pipe.INSTANCE;
 	}
 	
-	public final NodeResult next(String state){
+	public <R, N extends Node<R>> NodeResult<N> next(Class<N> state){
 		return next(state, null);
 	}
 	
-	public final NodeResult next(String next, Object result){
-		return NodeResult.create(next, result);
+	public <R, N extends Node<R>> NodeResult<N> next(Class<N> next, R result){
+		return NodeResult.create(NodeType.SERIAL, next, result);
 	}
 	
-	public final NodeResult start(String state){
+	public <E, R extends Collection<E>, N extends Node<R>> NodeResult<N> fork(Class<N> next, R result){
+		return NodeResult.create(NodeType.PARALLEL, next, result);
+	}
+	
+	public <E, R extends Collection<E>, N extends Node<R>> NodeResult<N> join(Class<N> next, E result){
+		return NodeResult.create(NodeType.PARALLEL, next, result);
+	}
+	
+	public <R, N extends Node<R>> String start(Class<N> state){
 		return start(state, null);
 	}
 	
-	public final NodeResult start(String next, Object result){
-		Pipes.start(next, result);
-		return NodeResult.create(next, result);
+	public <R, N extends Node<R>> String start(Class<N> next, R result){
+		return Pipes.start(NodeType.SERIAL, next, result);
 	}
 	
-	public final NodeResult finish(){
+	@SuppressWarnings("unchecked")
+	public final <R, N extends Node<R>> NodeResult<N> finish(){
 		return NodeResult.END_RESULT;
 	}
 	

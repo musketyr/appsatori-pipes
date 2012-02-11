@@ -23,7 +23,7 @@ import eu.appsatori.pipes.Pipe;
 class Stub1Node implements Node {
 	
 	NodeResult execute(Pipe pipe, Object text) {
-		pipe.next('two', text.length())
+		pipe.next(Stub2Node, text.length())
 	}
 
 }

@@ -19,47 +19,49 @@ package eu.appsatori.pipes;
 import com.google.appengine.api.taskqueue.DeferredTask;
 
 
-public class NodeTask implements DeferredTask {
+class NodeTask<A,N extends Node<A>> implements DeferredTask {
 
 	private static final long serialVersionUID = -3569377001403545004L;
 	private final String baseTaskId;
 	private final int index;
 	private final Object arg;
-	private final String nodeName;
+	private final Class<N> node;
+	private final NodeType type;
 	
-	public NodeTask(String nodeName, String baseTaskId, int index, Object arg) {
-		this.nodeName = nodeName;
+	public NodeTask(NodeType type, Class<N>node, String baseTaskId, int index, Object arg) {
+		this.type = type;
+		this.node = node;
 		this.baseTaskId = baseTaskId;
 		this.index = index;
 		this.arg = arg;
 	}
 
 	public void run() {
-		NodeDatastore nds = Pipes.getNodeDatastore();
-		NodeDescriptor<?> node = nds.find(nodeName);
-		
-		if(node == null){
-			throw new IllegalStateException("Node " + nodeName + " has disappeared!");
-		}
 		
 		try {
-			NodeResult result = node.execute(arg, index);
+			NodeResult<N> result = execute(type, arg, index);
 			if(!result.hasNext()){
-				node.getNodeType().handlePipeEnd(baseTaskId, index, result);
+				type.handlePipeEnd(baseTaskId, index, result);
 				return;
 			}
-			node.getNodeType().handleNext(baseTaskId, index, result);
+			type.handleNext(baseTaskId, index, result);
 		} catch (Exception e) {
-			Pipes.handleException(e);
+			Pipes.handleException(node, e);
+		}
+	}
+	
+	private N createTaskInstance() {
+		try {
+			return node.newInstance();
+		} catch (InstantiationException e) {
+			throw new IllegalStateException("Cannot initiate instance " + node.getName() + " does it have parameterless constructor?");
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException("Cannot initiate instance " + node.getName() + " does it have parameterless constructor?");
 		}
 	}
 
-	public String getBaseTaskId() {
-		return baseTaskId;
-	}
-
-	public Object getArg() {
-		return arg;
+	public NodeResult<N> execute(NodeType type, Object arg, int index) throws Exception {
+		return type.execute(createTaskInstance(), arg, index);
 	}
 	
 }
