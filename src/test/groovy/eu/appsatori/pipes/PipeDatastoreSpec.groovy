@@ -18,6 +18,7 @@ package eu.appsatori.pipes
 
 import groovy.transform.Canonical;
 import spock.lang.Specification;
+import spock.lang.Unroll;
 
 abstract class PipeDatastoreSpec extends Specification{
 	
@@ -33,6 +34,28 @@ abstract class PipeDatastoreSpec extends Specification{
 		pds.logTaskStarted(ptid, parallelTasksCount)
 		!pds.logTaskFinished(ptid, 0, myser)
 		myser.text == pds.getTaskResults(ptid)[0].text
+	}
+	
+	@Unroll({ "$literal must be $cls"})
+	def "Handle primitives"(){
+		String te
+		String ptid = '__parallel_task__01__'
+		int parallelTasksCount = 1
+		
+		expect:
+		pds.logTaskStarted(ptid, parallelTasksCount)
+		!pds.logTaskFinished(ptid, 0, literal)
+		cls == pds.getTaskResults(ptid)[0].getClass()
+		where:
+		literal 					| cls
+		Byte.valueOf((byte)100)		| Byte
+		Short.valueOf((short)25)	| Short
+		Integer.valueOf(124578)		| Integer
+		Character.valueOf((char)'c')| Character
+		Long.valueOf((long)1246)	| Long
+		Float.valueOf((float)12.22)	| Float
+		Double.valueOf((double)12.1)| Double  
+		
 	}
 	
 		

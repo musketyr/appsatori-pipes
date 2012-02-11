@@ -17,6 +17,7 @@
 package eu.appsatori.pipes;
 
 import com.google.appengine.api.taskqueue.DeferredTask;
+import com.google.appengine.api.taskqueue.DeferredTaskContext;
 
 
 class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
@@ -44,6 +45,7 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 		try {
 			result = execute();
 		} catch(Throwable th){
+			DeferredTaskContext.setDoNotRetry(true);
 			throw new RuntimeException("Exception during running task.", th);
 		}
 		

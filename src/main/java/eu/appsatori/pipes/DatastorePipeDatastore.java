@@ -55,6 +55,12 @@ class DatastorePipeDatastore implements PipeDatastore {
 	private static final String TASK_KIND = "task";
 	private static final String SUBTASK_KIND = "subtask";
 	private static final String SERIALIZED = "serialized";
+	private static final String NUMERIC_TYPE = "numeric";
+	private static final int FLOAT = 0;
+	private static final int SHORT = 1;
+	private static final int INTEGER = 2;
+	private static final int BYTE = 3;
+	
 	private static final int RETRIES = 10;
 	
 	private final transient DatastoreService ds;
@@ -221,7 +227,18 @@ class DatastorePipeDatastore implements PipeDatastore {
 					throw new IllegalStateException("Node with index " + index + " has already finished!");
 				}
 				subtask.setUnindexedProperty(FINISHED, Boolean.TRUE);
-				if(result == null || DataTypeUtils.isSupportedType(result.getClass())){
+				if(result == null){
+					subtask.setUnindexedProperty(RESULT, result);
+				} else if(DataTypeUtils.isSupportedType(result.getClass())){
+					if(Float.class.isAssignableFrom(result.getClass())){
+						subtask.setUnindexedProperty(NUMERIC_TYPE, FLOAT);
+					} else if(Integer.class.isAssignableFrom(result.getClass())){
+						subtask.setUnindexedProperty(NUMERIC_TYPE, INTEGER);
+					} else if(Byte.class.isAssignableFrom(result.getClass())){
+						subtask.setUnindexedProperty(NUMERIC_TYPE, BYTE);
+					} else if(Short.class.isAssignableFrom(result.getClass())){
+						subtask.setUnindexedProperty(NUMERIC_TYPE, SHORT);
+					}
 					subtask.setUnindexedProperty(RESULT, result);
 				} else if(Serializable.class.isAssignableFrom(result.getClass())){
 					subtask.setUnindexedProperty(SERIALIZED, true);
@@ -280,7 +297,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 		throw new ConcurrentModificationException("Cannot get task results even after " + RETRIES + " retries!");
 	}
 	
-	public List<Object> getTaskResultsInternal(String taskId) {
+	private List<Object> getTaskResultsInternal(String taskId) {
 		try {
 			Transaction tx = ds.beginTransaction();
 			try {
@@ -303,7 +320,24 @@ class DatastorePipeDatastore implements PipeDatastore {
 						result = deserialize((Blob)result);
 					} else if(Text.class.isAssignableFrom(result.getClass())){
 						result = ((Text)result).getValue();
+					} else if(subtask.hasProperty(NUMERIC_TYPE)){
+						Long numType = (Long) subtask.getProperty(NUMERIC_TYPE);
+						switch (numType.intValue()) {
+						case BYTE:
+							result = Byte.valueOf(((Number)result).byteValue());
+							break;
+						case SHORT:
+							result = Short.valueOf(((Number)result).shortValue());
+							break;
+						case INTEGER:
+							result = Integer.valueOf(((Number)result).intValue());
+							break;
+						case FLOAT:
+							result = Float.valueOf(((Number)result).floatValue());
+							break;
+						}
 					}
+					
 					ret.add(result);
 				}
 				return Collections.unmodifiableList(ret);
