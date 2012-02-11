@@ -39,6 +39,7 @@ public class ParallelNode implements Node<ParallelPipe, String> {
 The `JoinNode` will obtain the collection with the results of `ParallelNode` invocations
 
 ```java
+@Queue("join_queue")
 public class JoinNode implements Node<SerialPipe, Collection<Integer>> {
 
  public NodeResult execute(SerialPipe pipe, Collection<Integer> results) {
@@ -53,6 +54,8 @@ Calling `pipe.finish()` terminates the pipe.
 
 If you want to start a new pipe aside of existing use one of `run`, `spring`, `fork` methods of `Pipes` class. They behave
 exactly the same as returning result of *serial pipe* from the *node* execution.
+
+You can specify the name of the queue where is the node located by using `Queue` annotation. The queue must exist.
 
 
 ### Three ways of execution
