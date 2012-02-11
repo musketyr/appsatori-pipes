@@ -4,7 +4,7 @@ AppSatori Pipes is framework for easier concurrent background processing on
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
 environment.
 
-> [Hint: Get the latest version here](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.1.jar)
+> Hint: Get [the latest version here](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.1.jar)
 
 
 **Key concepts**
@@ -17,7 +17,8 @@ environment.
 
 ## Introduction
 ### Fork-Join Example
-> [Hint: Check a few test nodes to find out more examples](https://github.com/musketyr/appsatori-pipes/tree/master/src/test/java/eu/appsatori/pipes/sample)
+> Hint: Check [ a few test nodes](https://github.com/musketyr/appsatori-pipes/tree/master/src/test/java/eu/appsatori/pipes/sample)
+> to find out more examples
 
 Let's see a little fork-join example first. To run some operation in parallel you need to create a `Node` 
 and then run `fork` method of the facade class `Pipes`.
