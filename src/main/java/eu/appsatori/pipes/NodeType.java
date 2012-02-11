@@ -56,8 +56,7 @@ public enum NodeType {
 			Pipes.start(result.getNext(), fds.getTaskResults(baseTaskId));
 			fds.clearTaskLog(baseTaskId);
 		}
-	},
-	EXCEPTION_HANDLER;
+	};
 
 	public int getParallelTasksCount(Object arg) {
 		return 1;
@@ -76,7 +75,7 @@ public enum NodeType {
 
 	public void handleNext(String baseTaskId, int index, NodeResult result) {
 		Pipes.start(result.getNext(), result.getResult());
-		Pipes.getPipeDatastore().clearTaskLog(baseTaskId);
+		Pipes.getPipeDatastore().clearTaskLog(baseTaskId, true);
 	}
 
 }

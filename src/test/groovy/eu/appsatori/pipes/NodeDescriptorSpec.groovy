@@ -43,7 +43,7 @@ class NodeDescriptorSpec extends Specification {
 		then:
 		n.name == IllegalArgumentException.name
 		n.node == StubTask1
-		n.nodeType == NodeType.EXCEPTION_HANDLER
+		n.nodeType == NodeType.SERIAL
 	}
 	
 	def "Simple serial node with target"(){

@@ -26,11 +26,11 @@ public final class NodeDescriptor<N extends Node<?>> {
 	private final String queue;
 	
 	public static <N extends Node<?>> NodeDescriptor<N> handler(Class<? extends Throwable> exception, Class<N> nodeBase, String queue){
-		return new NodeDescriptor<N>(exception.getName(), nodeBase, NodeType.EXCEPTION_HANDLER, queue);
+		return new NodeDescriptor<N>(exception.getName(), nodeBase, NodeType.SERIAL, queue);
 	}
 	
 	public static <N extends Node<?>> NodeDescriptor<N> handler(Class<? extends Throwable> exception, Class<N> nodeBase){
-		return new NodeDescriptor<N>(exception.getName(), nodeBase, NodeType.EXCEPTION_HANDLER);
+		return new NodeDescriptor<N>(exception.getName(), nodeBase, NodeType.SERIAL);
 	}
 	
 	public static <N extends Node<?>> NodeDescriptor<N> parallel(String name, Class<N> nodeBase, String queue){
