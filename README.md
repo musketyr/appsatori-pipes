@@ -4,7 +4,7 @@ AppSatori Pipes is framework for easier concurrent background processing on
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
 environment.
 
-> [Get the latest version now](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.1.jar)
+> [Hint: Get the latest version here](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.1.jar)
 
 
 **Key concepts**
@@ -56,7 +56,9 @@ public class JoinNode implements Node<SerialPipe, Collection<Integer>> {
 }
 ```
 
-Calling `pipe.finish()` terminates the pipe. 
+Calling `pipe.finish()` terminates the pipe.
+
+> Note: Returning `null` has the same effect as `pipe.finish()` but good guys don't return null, do they?
 
 If you want to start a new pipe aside of existing use one of `run`, `spring`, `fork` methods of `Pipes` class. They behave
 exactly the same as returning result of *serial pipe* from the *node* execution.
@@ -91,6 +93,12 @@ supplied collection.
 ## App Engine Details
 
 ### Costs
+
+> Hint: Don't forget you have 9 hours backend hours free a day. Set up new backend in [backends.xml](http://code.google.com/appengine/docs/java/config/backends.html)
+> then a queue in [queue.xml](http://code.google.com/appengine/docs/java/config/queue.html) 
+> with proper [target](http://code.google.com/appengine/docs/java/config/queue.html#target)
+> set to the backend and use `@Queue` annotation to execute node in the queue.
+
 Serial pipes runs directly using
 [deffered tasks](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/taskqueue/DeferredTask.html)
 so the results are not stored into the datastore but count towards 
