@@ -67,6 +67,10 @@ You can specify the name of the queue where is the node located by using `Queue`
 
 
 ### Three ways of execution
+> Hint: The framework is using generics heavily to check the *nodes* are chained properly. Do not cheat them!
+> For example you must pass collections to the `fork` and `sprint` methods and the following *node's* second parameter must be of the same type as the elements of
+> supplied collection.
+
 There are always three ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
 throught the *serial* or the *parallel pipe*.
 
@@ -83,11 +87,6 @@ throught the *serial* or the *parallel pipe*.
 1. waiting unless all tasks have finished and continuing in parallel processing using the `next` method
 2. waiting unless all tasks have finished and passing collected result for serial processing using the `join` method
 3. waiting unless all tasks have finished and passing collected result for challange processing using the `sprint` method
-
-
-The framework is using generics heavily to check the *nodes* are chained properly. For example you must pass collections
-to the `fork` and `sprint` methods and the following *node's* second parameter must be of the same type as the elements of
-supplied collection.
 
 
 ## App Engine Details
