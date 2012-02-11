@@ -16,6 +16,8 @@
 
 package eu.appsatori.pipes;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -39,8 +41,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.ReadPolicy;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 
 class DatastorePipeDatastore implements PipeDatastore {
@@ -254,10 +254,10 @@ class DatastorePipeDatastore implements PipeDatastore {
 		try {
 			ObjectOutputStream oos = null;
 			try {
-				ByteOutputStream bos = new ByteOutputStream();
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				oos = new ObjectOutputStream(bos);
 				oos.writeObject(obj);
-				return new Blob(bos.getBytes());
+				return new Blob(bos.toByteArray());
 			} finally {
 				if(oos != null){
 					oos.close();
@@ -319,7 +319,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 		try {
 			ObjectInputStream ois = null;
 			try {
-				ois = new ObjectInputStream(new ByteInputStream(blob.getBytes(), blob.getBytes().length));
+				ois = new ObjectInputStream(new ByteArrayInputStream(blob.getBytes()));
 				return ois.readObject();
 			} finally {
 				if(ois != null){
