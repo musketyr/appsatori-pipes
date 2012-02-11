@@ -1,26 +1,26 @@
 package eu.appsatori.pipes;
 
-public final class NodeResult {
+public class NodeResult {
 	
-	public static final NodeResult END_RESULT = new NodeResult(NodeType.SERIAL, null, null);
+	static final NodeResult END_RESULT = new NodeResult(PipeType.SERIAL, null, null);
 	
 	private final Object result;
-	private final Class<? extends Node<?>> next;
-	private final NodeType type;
+	private final Class<? extends Node<?,?>> next;
+	private final PipeType type;
 	
-	public static NodeResult create(NodeType type, Class<? extends Node<?>> next){
+	static NodeResult create(PipeType type, Class<? extends Node<?,?>> next){
 		return create(type, next, null);
 	}
 	
-	public static  NodeResult create(NodeType type, Class<? extends Node<?>> next, Object result){
+	static NodeResult create(PipeType type, Class<? extends Node<?,?>> next, Object result){
 		if(next == null){
 			return END_RESULT;
 		}
 		return new NodeResult(type, next, result);
 	}
 	
-	private NodeResult(NodeType type, Class<? extends Node<?>> next, Object result) {
-		this.type = NodeType.SERIAL;
+	private NodeResult(PipeType type, Class<? extends Node<?,?>> next, Object result) {
+		this.type = type;
 		this.result = result;
 		this.next = next;
 	}
@@ -37,11 +37,11 @@ public final class NodeResult {
 		return next != null;
 	}
 
-	public Class<? extends Node<?>> getNext() {
+	public Class<? extends Node<?,?>> getNext() {
 		return next;
 	}
 	
-	public NodeType getType() {
+	public PipeType getType() {
 		return type;
 	}
 

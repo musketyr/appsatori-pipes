@@ -39,6 +39,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 	private static final String FINISHED = "finished";
 	private static final Long ZERO = Long.valueOf(0);
 	private static final String RESULT = "result";
+	private static final String ACTIVE = "active";
 	private static final String COUNT = "count";
 	private static final String TOTAL_COUNT = "total_count";
 	private static final String FLOW_NAMESPACE = "eu_appsatori_gaeflow";
@@ -51,6 +52,63 @@ class DatastorePipeDatastore implements PipeDatastore {
 	public DatastorePipeDatastore(){
 		DatastoreServiceConfig config = DatastoreServiceConfig.Builder.withImplicitTransactionManagementPolicy(ImplicitTransactionManagementPolicy.AUTO).readPolicy(new ReadPolicy(ReadPolicy.Consistency.STRONG));
 		ds = DatastoreServiceFactory.getDatastoreService(config);
+	}
+	
+	public boolean isActive(String taskId) {
+		int attempt = 1;
+		while(attempt <= RETRIES){
+			try {
+				return isActiveInternal(taskId);
+			} catch (ConcurrentModificationException e){
+				attempt++;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isActiveInternal(String taskId){
+		Transaction tx = ds.beginTransaction();
+		try {
+			try {
+				Boolean active = (Boolean) get(getKey(taskId)).getProperty(ACTIVE);
+				if(active == null){
+					return false;
+				}
+				return active ;
+			} catch (EntityNotFoundException e){
+				return false;
+			}
+		} finally {
+			tx.commit();
+		}
+	}
+	
+	public boolean setActive(String taskId, boolean active) {
+		int attempt = 1;
+		while(attempt <= RETRIES){
+			try {
+				return setActiveInternal(taskId, active);
+			} catch (ConcurrentModificationException e){
+				attempt++;
+			}
+		}
+		return false;
+	}
+	
+	private boolean setActiveInternal(String taskId, boolean active){
+		Transaction tx = ds.beginTransaction();
+		try {
+			try {
+				Entity entity = get(getKey(taskId));
+				entity.setUnindexedProperty(ACTIVE, active);
+				put(entity);
+				return true;
+			} catch (EntityNotFoundException e){
+				return false;
+			}
+		} finally {
+			tx.commit();
+		}
 	}
 
 	public boolean logTaskStarted(String taskId, int taskCount) {
@@ -75,6 +133,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 				Entity task = new Entity(TASK_KIND, taskId);
 				task.setUnindexedProperty(COUNT, (long) taskCount);
 				task.setUnindexedProperty(TOTAL_COUNT, (long) taskCount);
+				task.setUnindexedProperty(ACTIVE, true);
 				Key taskKey = put(task);
 				for(int i = 0; i < taskCount; i++){
 					Entity subtask = new Entity(taskKey.getChild(SUBTASK_KIND, i + 1));

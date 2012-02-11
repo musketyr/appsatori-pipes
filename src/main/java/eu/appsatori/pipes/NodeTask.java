@@ -19,16 +19,16 @@ package eu.appsatori.pipes;
 import com.google.appengine.api.taskqueue.DeferredTask;
 
 
-class NodeTask<A,N extends Node<A>> implements DeferredTask {
+class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 
 	private static final long serialVersionUID = -3569377001403545004L;
 	private final String baseTaskId;
 	private final int index;
 	private final Object arg;
 	private final Class<N> node;
-	private final NodeType type;
+	private final PipeType type;
 	
-	public NodeTask(NodeType type, Class<N>node, String baseTaskId, int index, Object arg) {
+	public NodeTask(PipeType type, Class<N>node, String baseTaskId, int index, Object arg) {
 		this.type = type;
 		this.node = node;
 		this.baseTaskId = baseTaskId;
@@ -37,17 +37,21 @@ class NodeTask<A,N extends Node<A>> implements DeferredTask {
 	}
 
 	public void run() {
-		
-		try {
-			NodeResult result = execute(type, arg, index);
-			if(!result.hasNext()){
-				type.handlePipeEnd(baseTaskId, index, result);
-				return;
-			}
-			type.handleNext(baseTaskId, index, result);
-		} catch (Exception e) {
-			Pipes.handleException(node, e);
+		if(!Pipes.getPipeDatastore().isActive(baseTaskId)){
+			return;
 		}
+		NodeResult result = NodeResult.END_RESULT;
+		try {
+			result = execute();
+		} catch(Throwable th){
+			throw new RuntimeException("Exception during running task.", th);
+		}
+		
+		if(result == null || !result.hasNext()){
+			type.handlePipeEnd(Pipes.getQueueName(node), baseTaskId, index, result);
+			return;
+		}
+		type.handleNext(Pipes.getQueueName(node), baseTaskId, index, result);
 	}
 	
 	private N createTaskInstance() {
@@ -60,7 +64,7 @@ class NodeTask<A,N extends Node<A>> implements DeferredTask {
 		}
 	}
 
-	public NodeResult execute(NodeType type, Object arg, int index) throws Exception {
+	public NodeResult execute(){
 		return type.execute(createTaskInstance(), arg, index);
 	}
 	

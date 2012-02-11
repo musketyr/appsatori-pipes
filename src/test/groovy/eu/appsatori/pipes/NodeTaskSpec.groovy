@@ -22,7 +22,9 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
-import eu.appsatori.pipes.stubs.Stub1Node;
+import eu.appsatori.pipes.sample.JoinNode;
+import eu.appsatori.pipes.sample.ParallelNode;
+import eu.appsatori.pipes.sample.SerialNode;
 
 
 
@@ -43,51 +45,71 @@ class NodeTaskSpec extends Specification {
 	}
 	
 	def 'Execute serial task'(){
-		NodeTask executor = new NodeTask(NodeType.SERIAL, Stub1Node, 'taskid', 0, 'hello')
+		NodeTask executor = new NodeTask(PipeType.SERIAL, SerialNode, 'taskid', 0, 10)
 		
 		expect:
-		executor.node == Stub1Node
+		executor.node == SerialNode
 		executor.baseTaskId == 'taskid'
-		executor.arg == 'hello'
+		executor.arg == 10
 		executor.index == 0
 		
 		when:
 		executor.run()
 		
 		then:
-		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+		1 * fds.isActive('taskid') >> true
+		100 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+	}
+	
+	def 'Execute cometetive task'(){
+		NodeTask executor = new NodeTask(PipeType.COMPETETIVE, SerialNode, 'taskid', 0, [10, 20, 30])
+		
+		expect:
+		executor.node == SerialNode
+		executor.baseTaskId == 'taskid'
+		executor.arg == [10, 20, 30]
+		executor.index == 0
+		
+		when:
+		executor.run()
+		
+		then:
+		1 * fds.isActive('taskid') >> true
+		100 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
 	def 'Execute unfisished parallel task'(){
-		NodeTask executor = new NodeTask(NodeType.PARALLEL, Stub1Node, 'taskid', 0, 'hello')
+		NodeTask executor = new NodeTask(PipeType.PARALLEL, ParallelNode, 'taskid', 0, 10L)
 		
 		expect:
-		executor.node == Stub1Node
+		executor.node == ParallelNode
 		executor.baseTaskId == 'taskid'
-		executor.arg == 'hello'
+		executor.arg == 10L
 		executor.index == 0
 		
 		when:
 		executor.run()
 		
 		then:
-		1 * fds.logTaskFinished('taskid', 0, 5) >> 2
+		1 * fds.isActive('taskid') >> true
+		1 * fds.logTaskFinished('taskid', 0, _) >> 2
 	}
 	
 	def 'Execute fisished parallel task'(){
-		NodeTask executor = new NodeTask(NodeType.PARALLEL,Stub1Node, 'taskid', 0, 'hello')
+		NodeTask executor = new NodeTask(PipeType.PARALLEL,ParallelNode, 'taskid', 0, 10L)
 		
 		expect:
-		executor.node == Stub1Node
+		executor.node == ParallelNode
 		executor.baseTaskId == 'taskid'
-		executor.arg == 'hello'
+		executor.arg == 10L
 		executor.index == 0
 		
 		when:
 		executor.run()
 		
 		then:
-		1 * fds.logTaskFinished('taskid', 0, 5) >> 0
+		1 * fds.isActive('taskid') >> true
+		1 * fds.logTaskFinished('taskid', 0, _) >> 0
 		1 * fds.getTaskResults('taskid')
 		1 * fds.clearTaskLog('taskid')
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks

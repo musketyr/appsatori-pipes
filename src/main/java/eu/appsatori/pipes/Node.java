@@ -16,8 +16,9 @@
 
 package eu.appsatori.pipes;
 
-public interface Node<A> {
+
+public interface Node<P extends Pipe, A> {
 	
-	NodeResult execute(Pipe pipe, A arg) throws Exception;
+	NodeResult execute(P pipe, A arg);
 
 }

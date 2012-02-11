@@ -23,6 +23,11 @@ import java.util.List;
  */
 interface PipeDatastore {
 	
+	boolean isActive(String taskId);
+	
+	boolean setActive(String taskId, boolean active);
+	
+	
 	/**
 	 * Logs the start of the task execution.
 	 * @param taskId base id of the started task (e.g. without index suffix)

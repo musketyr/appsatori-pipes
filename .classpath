@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
-	<classpathentry kind="con" path="GROOVY_DSL_SUPPORT" exported="true"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/groovy"/>
-	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.spockframework/spock-core/c12498cf18507aa6433a94eb7d3e77d5/sources/spock-core-0.5-groovy-1.8-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.spockframework/spock-core/c12498cf18507aa6433a94eb7d3e77d5/jars/spock-core-0.5-groovy-1.8.jar" exported="true"/>
-	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/junit/junit-dep/c12498cf18507aa6433a94eb7d3e77d5/sources/junit-dep-4.8.2-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/junit/junit-dep/c12498cf18507aa6433a94eb7d3e77d5/jars/junit-dep-4.8.2.jar" exported="true"/>
-	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.hamcrest/hamcrest-core/c12498cf18507aa6433a94eb7d3e77d5/sources/hamcrest-core-1.2-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.hamcrest/hamcrest-core/c12498cf18507aa6433a94eb7d3e77d5/jars/hamcrest-core-1.2.jar" exported="true"/>
-	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-stubs/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-stubs-1.6.2.jar" exported="true"/>
-	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-testing/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-testing-1.6.2.jar" exported="true"/>
-	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/javax.servlet/servlet-api/c12498cf18507aa6433a94eb7d3e77d5/sources/servlet-api-2.5-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/javax.servlet/servlet-api/c12498cf18507aa6433a94eb7d3e77d5/jars/servlet-api-2.5.jar" exported="true"/>
-	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-1.0-sdk/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-1.0-sdk-1.6.2.jar" exported="true"/>
-	<classpathentry kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-labs/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-labs-1.6.2.jar" exported="true"/>
-	<classpathentry sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.codehaus.groovy/groovy-all/c12498cf18507aa6433a94eb7d3e77d5/sources/groovy-all-1.8.5-sources.jar" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.codehaus.groovy/groovy-all/c12498cf18507aa6433a94eb7d3e77d5/jars/groovy-all-1.8.5.jar" exported="true"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.spockframework/spock-core/c12498cf18507aa6433a94eb7d3e77d5/jars/spock-core-0.5-groovy-1.8.jar" sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.spockframework/spock-core/c12498cf18507aa6433a94eb7d3e77d5/sources/spock-core-0.5-groovy-1.8-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/junit/junit-dep/c12498cf18507aa6433a94eb7d3e77d5/jars/junit-dep-4.8.2.jar" sourcepath="/home/ladin/.gradle/caches/artifacts-3/junit/junit-dep/c12498cf18507aa6433a94eb7d3e77d5/sources/junit-dep-4.8.2-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.hamcrest/hamcrest-core/c12498cf18507aa6433a94eb7d3e77d5/jars/hamcrest-core-1.2.jar" sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.hamcrest/hamcrest-core/c12498cf18507aa6433a94eb7d3e77d5/sources/hamcrest-core-1.2-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-stubs/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-stubs-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-testing/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-testing-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/javax.servlet/servlet-api/c12498cf18507aa6433a94eb7d3e77d5/jars/servlet-api-2.5.jar" sourcepath="/home/ladin/.gradle/caches/artifacts-3/javax.servlet/servlet-api/c12498cf18507aa6433a94eb7d3e77d5/sources/servlet-api-2.5-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-1.0-sdk/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-1.0-sdk-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/com.google.appengine/appengine-api-labs/c12498cf18507aa6433a94eb7d3e77d5/jars/appengine-api-labs-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ladin/.gradle/caches/artifacts-3/org.codehaus.groovy/groovy-all/c12498cf18507aa6433a94eb7d3e77d5/jars/groovy-all-1.8.5.jar" sourcepath="/home/ladin/.gradle/caches/artifacts-3/org.codehaus.groovy/groovy-all/c12498cf18507aa6433a94eb7d3e77d5/sources/groovy-all-1.8.5-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

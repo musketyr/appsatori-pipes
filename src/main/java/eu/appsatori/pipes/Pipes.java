@@ -16,6 +16,7 @@
 
 package eu.appsatori.pipes;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import com.google.appengine.api.taskqueue.Queue;
@@ -24,7 +25,7 @@ import com.google.appengine.api.taskqueue.RetryOptions;
 import com.google.appengine.api.taskqueue.TaskOptions;
 
 
-class Pipes {
+public class Pipes {
 
 	private static final Pattern TASK_NAME_PATTERN = Pattern.compile("[^0-9a-zA-Z\\-\\_]");  
 
@@ -36,28 +37,28 @@ class Pipes {
 	
 	private Pipes() { }
 	
-	public static <R, N extends Node<R>> String run(Class<N> state){
+	public static <P extends Pipe, R extends Serializable, N extends Node<P,R>> String run(Class<N> state){
 		return run(state, null);
 	}
 	
-	public static <R, N extends Node<R>> String run(Class<N> next, R result){
-		return start(NodeType.SERIAL, next, result);
+	public static <P extends Pipe,R extends Serializable, N extends Node<P,R>> String run(Class<N> next, R result){
+		return start(PipeType.SERIAL, next, result);
 	}
 	
-	public static <R, N extends Node<R>> String fork(Class<N> state){
-		return fork(state, null);
+	public static <P extends Pipe,R extends Serializable, N extends Node<P,R>> String fork(Class<N> next, R result){
+		return start(PipeType.PARALLEL, next, result);
 	}
 	
-	public static <R, N extends Node<R>> String fork(Class<N> next, R result){
-		return start(NodeType.PARALLEL, next, result);
+	public static <P extends Pipe,R extends Serializable, N extends Node<P,R>> String sprint(Class<N> next, R result){
+		return start(PipeType.COMPETETIVE, next, result);
 	}
 	
 	
-	static String start(NodeType type, Class<? extends Node<?>> node){
+	static String start(PipeType type, Class<? extends Node<?,?>> node){
 		return start(type, node, null);
 	}
 	
-	static <N extends Node<?>> String start(NodeType type, Class<? extends Node<?>> node, Object arg){
+	static <N extends Node<?,?>> String start(PipeType type, Class<? extends Node<?,?>> node, Object arg){
 		String taskId = getUniqueTaskId(node.getName());
 		Queue q = getQueue(node);
 		int total = type.getParallelTasksCount(arg);
@@ -66,20 +67,6 @@ class Pipes {
 			startTask(q, type, node, arg, taskId, i);
 		}
 		return taskId;
-	}
-	
-	static <N extends Node<?>> String handleException(Class<? extends Node<?>> node, Throwable e){
-		if(!node.isAnnotationPresent(ExceptionHandler.class)){
-			throw new RuntimeException("Exception executing node. No exception handler defined.", e);
-		}
-		
-		for(Class<Node<? extends Throwable>> handler : node.getAnnotation(ExceptionHandler.class).value()){
-			Class<?> cls = (Class<?>) handler.getTypeParameters()[0].getBounds()[0];
-			if(cls.isAssignableFrom(e.getClass())){
-				return start(NodeType.SERIAL, handler, e);
-			}
-		}
-		throw new RuntimeException("Exception executing node. No exception handler defined.", e);
 	}
 
 
@@ -102,24 +89,29 @@ class Pipes {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void startTask(Queue q, NodeType type, Class node, Object arg, String taskId, int index) {
+	private static void startTask(Queue q, PipeType type, Class node, Object arg, String taskId, int index) {
 		NodeTask nodeTask = new NodeTask(type, node, taskId, index, arg);
 		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeTask).retryOptions(RetryOptions.Builder.withTaskRetryLimit(0));
 		q.add(options);
 	}
 
-	private static <N extends Node<?>> Queue getQueue(Class<? extends Node<?>> node) {
-		String name = "";
-		
-		if(node.isAnnotationPresent(eu.appsatori.pipes.Queue.class)){
-			name = node.getAnnotation(eu.appsatori.pipes.Queue.class).value();
-		}
+	static <N extends Node<?,?>> Queue getQueue(Class<? extends Node<?,?>> node) {
+		String name = getQueueName(node);
 		
 		Queue q = QueueFactory.getDefaultQueue();
 		if(!"".equals(name)){
 			q = QueueFactory.getQueue(name);
 		}
 		return q;
+	}
+
+	static String getQueueName(Class<? extends Node<?,?>> node) {
+		String name = "";
+		
+		if(node.isAnnotationPresent(eu.appsatori.pipes.Queue.class)){
+			name = node.getAnnotation(eu.appsatori.pipes.Queue.class).value();
+		}
+		return name;
 	}
 	
 	

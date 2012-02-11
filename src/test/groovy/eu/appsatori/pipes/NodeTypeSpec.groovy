@@ -1,13 +1,13 @@
 package eu.appsatori.pipes
 
-import spock.lang.Specification;
-
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
-class QueueCleanerSpec extends Specification{
+import spock.lang.Specification;
+
+class NodeTypeSpec extends Specification {
 	
 	LocalTaskQueueTestConfig config = new LocalTaskQueueTestConfig()
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
@@ -30,11 +30,20 @@ class QueueCleanerSpec extends Specification{
 		4 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 		
 		when:
-		QueueCleaner.clean("", "taskid", 5)
+		PipeType.clean("", "taskid", 5)
 		
 		then:
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 		
 	}
-
+	
+	def "Count size"(){
+		expect:
+		1 == PipeType.sizeOf(null)
+		1 == PipeType.sizeOf(new Object())
+		1 == PipeType.sizeOf("Hallo")
+		3 == PipeType.sizeOf(new String[3])
+		5 == PipeType.sizeOf(["H","a","l","l","o"]);
+	}
+	
 }

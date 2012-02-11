@@ -22,9 +22,10 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
 
-import eu.appsatori.pipes.stubs.Stub1Node;
+import eu.appsatori.pipes.sample.ParallelNode;
+import eu.appsatori.pipes.sample.SerialNode;
 
-class PipesExecutorSpec extends Specification {
+class PipesSpec extends Specification {
 	
 	LocalTaskQueueTestConfig config = new LocalTaskQueueTestConfig()
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
@@ -34,7 +35,7 @@ class PipesExecutorSpec extends Specification {
 	
 	def "Executes serial flow"(){
 		when:
-		Pipes.start(NodeType.SERIAL, Stub1Node, 'hello')
+		Pipes.start(PipeType.SERIAL, SerialNode, 'hello')
 		
 		then:
 		1 * fds.logTaskStarted(_, 1)
@@ -43,7 +44,7 @@ class PipesExecutorSpec extends Specification {
 	
 	def "Executes parallel flow"(){
 		when:
-		Pipes.start(NodeType.PARALLEL, Stub1Node, ['hello', 'world', '!'])
+		Pipes.start(PipeType.PARALLEL, ParallelNode, ['hello', 'world', '!'])
 		
 		then:
 		1 * fds.logTaskStarted(_, 3)
