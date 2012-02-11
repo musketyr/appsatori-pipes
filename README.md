@@ -118,7 +118,9 @@ to String before serving so do not use
 [app engine Text type](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/Text.html)
 directly result of parallel execution. 
 
-App Engine stores numbers as Longs and Doubles only. Use them directly for better performance.
+App Engine stores numbers as Longs and Doubles only. Use them directly for better performance. Bytes, Shorts, Integers 
+and Floats are handled properly for you by the framework. You don't need to be afraid that they are accidentaly
+converted to Longs and Doubles by the datastore.
 
 
 
