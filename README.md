@@ -81,7 +81,7 @@ throught the *serial* or the *parallel pipe*.
 
 1. direct chaining results to the next node using `run` method
 2. forking the results so each item will be handled separely using the `fork` method
-3. forking the results so each item will be handled separelly but only the first success task will proceed to next node using the `sprint` method
+3. forking the results so each item will be handled separelly but only the first successfull task will proceed to next node using the `sprint` method
   
 
 **Parallel Pipes**
