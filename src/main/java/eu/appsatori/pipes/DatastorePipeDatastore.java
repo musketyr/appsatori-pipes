@@ -24,23 +24,15 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 
-import com.google.appengine.api.NamespaceManager;
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.DataTypeUtils;
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.ImplicitTransactionManagementPolicy;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.ReadPolicy;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.datastore.Transaction;
 
 
 class DatastorePipeDatastore implements PipeDatastore {
@@ -51,9 +43,6 @@ class DatastorePipeDatastore implements PipeDatastore {
 	private static final String ACTIVE = "active";
 	private static final String COUNT = "count";
 	private static final String TOTAL_COUNT = "total_count";
-	private static final String FLOW_NAMESPACE = "eu_appsatori_gaeflow";
-	private static final String TASK_KIND = "task";
-	private static final String SUBTASK_KIND = "subtask";
 	private static final String SERIALIZED = "serialized";
 	private static final String NUMERIC_TYPE = "numeric";
 	private static final int FLOAT = 0;
@@ -61,213 +50,145 @@ class DatastorePipeDatastore implements PipeDatastore {
 	private static final int INTEGER = 2;
 	private static final int BYTE = 3;
 	
-	private static final int RETRIES = 10;
 	
-	private final transient DatastoreService ds;
+	DatastorePipeDatastore(){}
 	
-	public DatastorePipeDatastore(){
-		DatastoreServiceConfig config = DatastoreServiceConfig.Builder.withImplicitTransactionManagementPolicy(ImplicitTransactionManagementPolicy.AUTO).readPolicy(new ReadPolicy(ReadPolicy.Consistency.STRONG));
-		ds = DatastoreServiceFactory.getDatastoreService(config);
-	}
-	
-	public boolean isActive(String taskId) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return isActiveInternal(taskId);
-			} catch (ConcurrentModificationException e){
-				attempt++;
-			}
-		}
-		return false;
-	}
-	
-	private boolean isActiveInternal(String taskId){
-		Transaction tx = ds.beginTransaction();
-		try {
-			try {
-				Boolean active = (Boolean) get(getKey(taskId)).getProperty(ACTIVE);
-				if(active == null){
-					return false;
-				}
-				return active ;
-			} catch (EntityNotFoundException e){
-				return false;
-			}
-		} finally {
-			tx.commit();
-		}
-	}
-	
-	public boolean setActive(String taskId, boolean active) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return setActiveInternal(taskId, active);
-			} catch (ConcurrentModificationException e){
-				attempt++;
-			}
-		}
-		return false;
-	}
-	
-	private boolean setActiveInternal(String taskId, boolean active){
-		Transaction tx = ds.beginTransaction();
-		try {
-			try {
-				Entity entity = get(getKey(taskId));
-				entity.setUnindexedProperty(ACTIVE, active);
-				put(entity);
-				return true;
-			} catch (EntityNotFoundException e){
-				return false;
-			}
-		} finally {
-			tx.commit();
-		}
-	}
-
-	public boolean logTaskStarted(String taskId, int taskCount) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return logTaskStartedInternal(taskId, taskCount);
-			} catch (ConcurrentModificationException e){
-				attempt++;
-			}
-		}
-		return false;
-	}
-	
-	private boolean logTaskStartedInternal(String taskId, int taskCount) {
-		Transaction tx = ds.beginTransaction();
-		try {
-			try {
-				get(getKey(taskId));
-				return false;
-			} catch (EntityNotFoundException e){
-				Entity task = new Entity(TASK_KIND, taskId);
-				task.setUnindexedProperty(COUNT, (long) taskCount);
-				task.setUnindexedProperty(TOTAL_COUNT, (long) taskCount);
-				task.setUnindexedProperty(ACTIVE, true);
-				Key taskKey = put(task);
-				for(int i = 0; i < taskCount; i++){
-					Entity subtask = new Entity(taskKey.getChild(SUBTASK_KIND, i + 1));
-					subtask.setUnindexedProperty(FINISHED, false);
-					subtask.setUnindexedProperty(RESULT, null);
-					put(subtask);
-				}
-				return true;
-			}
-		} finally {
-			tx.commit();
-		}
-	}
-	
-	public int getParallelTaskCount(String taskId) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return getParallelTaskCountInternal(taskId);
-			} catch (ConcurrentModificationException e){
-				attempt++;
-			}
-		}
-		throw new ConcurrentModificationException("Cannot get parallel task count even after " + RETRIES + " retries!");
-	}
-
-	private int getParallelTaskCountInternal(String taskId) {
-		try {
-			Transaction tx = ds.beginTransaction();
-			try {
-				Entity task = get(getKey(taskId));
-				Long total = (Long) task.getProperty(TOTAL_COUNT);
-				return total.intValue();
-			} finally {
-				tx.commit();
-			}
-		} catch (EntityNotFoundException e){
-			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
-		}
-	}
-	
-	public int logTaskFinished(String taskId, int index, Object results) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return logTaskFinishedInternal(taskId, index, results);
-			} catch (ConcurrentModificationException e){
-				attempt++;
-			}
-		}
-		throw new ConcurrentModificationException("Cannot log task finished even after " + RETRIES + " retries!");
-	}
-
-
-	private int logTaskFinishedInternal(String taskId, int index, Object result) {
-		try {
-			if(result instanceof Text){
-				throw new IllegalArgumentException("Text is not supported result!");
-			}
-			Transaction tx = ds.beginTransaction();
-			try {
-				Entity task = get(getKey(taskId));
-				Long count = (Long) task.getProperty(COUNT);
-				Long total = (Long) task.getProperty(TOTAL_COUNT);
-				
-				if(total == null) {
-					total = Long.valueOf(ZERO);
-				}
-				
-				if(index >= total.intValue()){
-					throw new IndexOutOfBoundsException("There are only " + total + " tasks expected ! You requested index " + index);
-				}
-				
-				Entity subtask = get(getKey(taskId, index));
-				
-				
-				if(Boolean.TRUE.equals(subtask.getProperty(FINISHED))){
-					throw new IllegalStateException("Node with index " + index + " has already finished!");
-				}
-				subtask.setUnindexedProperty(FINISHED, Boolean.TRUE);
-				if(result == null){
-					subtask.setUnindexedProperty(RESULT, result);
-				} else if(DataTypeUtils.isSupportedType(result.getClass())){
-					if(Float.class.isAssignableFrom(result.getClass())){
-						subtask.setUnindexedProperty(NUMERIC_TYPE, FLOAT);
-					} else if(Integer.class.isAssignableFrom(result.getClass())){
-						subtask.setUnindexedProperty(NUMERIC_TYPE, INTEGER);
-					} else if(Byte.class.isAssignableFrom(result.getClass())){
-						subtask.setUnindexedProperty(NUMERIC_TYPE, BYTE);
-					} else if(Short.class.isAssignableFrom(result.getClass())){
-						subtask.setUnindexedProperty(NUMERIC_TYPE, SHORT);
+	public boolean isActive(final String taskId) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Boolean>(){
+			public Boolean run(DatastoreService ds) {
+				try {
+					Boolean active = (Boolean) ds.get(DatastoreHelper.getKey(taskId)).getProperty(ACTIVE);
+					if(active == null){
+						return Boolean.TRUE;
 					}
-					subtask.setUnindexedProperty(RESULT, result);
-				} else if(Serializable.class.isAssignableFrom(result.getClass())){
-					subtask.setUnindexedProperty(SERIALIZED, true);
-					subtask.setUnindexedProperty(RESULT, serialize(result));
+					return active;
+				} catch (EntityNotFoundException e) {
+					return Boolean.FALSE;
+				}
+			}
+		}, Boolean.FALSE);
+	}
+	
+	public boolean setActive(final String taskId, final boolean active) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Boolean>(){
+			public Boolean run(DatastoreService ds) {
+				try {
+					Entity entity = ds.get(DatastoreHelper.getKey(taskId));
+					entity.setUnindexedProperty(ACTIVE, active);
+					ds.put(entity);
+					return Boolean.TRUE;
+				} catch (EntityNotFoundException e) {
+					return Boolean.FALSE;
+				}
+			}
+		}, Boolean.FALSE);
+	}
+
+	public boolean logTaskStarted(final String taskId, final int taskCount) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Boolean>(){
+			public Boolean run(DatastoreService ds) {
+				try {
+					ds.get(DatastoreHelper.getKey(taskId));
+					return Boolean.FALSE;
+				} catch (EntityNotFoundException e){
+					Entity task = new Entity(DatastoreHelper.TASK_KIND, taskId);
+					task.setUnindexedProperty(TOTAL_COUNT, (long) taskCount);
+					Key taskKey = ds.put(task);
+					for(int i = 0; i < taskCount; i++){
+						Entity subtask = new Entity(taskKey.getChild(DatastoreHelper.SUBTASK_KIND, i + 1));
+						ds.put(subtask);
+					}
+					return Boolean.TRUE;
+				}
+			}
+		}, Boolean.FALSE);
+	}
+	
+	public int getParallelTaskCount(final String taskId) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Integer>(){
+			public Integer run(DatastoreService ds) {
+				try {
+					Entity task = ds.get(DatastoreHelper.getKey(taskId));
+					Long total = (Long) task.getProperty(TOTAL_COUNT);
+					if(total == null){
+						return 0;
+					}
+					return total.intValue();
+				} catch (EntityNotFoundException e){
+					throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
+				}
+			}
+		}, -1);
+	}
+	
+	public int logTaskFinished(final String taskId, final int index, final Object result) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Integer>(){
+			
+			public Integer run(DatastoreService ds) {
+				if(result instanceof Text){
+					throw new IllegalArgumentException("Text is not supported result!");
 				}
 				try {
-					put(subtask);
-				} catch (IllegalArgumentException e){
-					throw new IllegalArgumentException("Result type is not supported by this flow datastore!", e);
+					Entity task = ds.get(DatastoreHelper.getKey(taskId));
+					Long total = (Long) task.getProperty(TOTAL_COUNT);
+					Long count = (Long) task.getProperty(COUNT);
+					
+					if(total == null) {
+						total = Long.valueOf(ZERO);
+					}
+					if(count == null){
+						count = total;
+					}
+					
+					if(index >= total.intValue()){
+						throw new IndexOutOfBoundsException("There are only " + total + " tasks expected ! You requested index " + index);
+					}
+					
+					Entity subtask = ds.get(DatastoreHelper.getKey(taskId, index));
+					
+					
+					if(Boolean.TRUE.equals(subtask.getProperty(FINISHED))){
+						throw new IllegalStateException("Node with index " + index + " has already finished!");
+					}
+					subtask.setUnindexedProperty(FINISHED, Boolean.TRUE);
+					if(result == null){
+						subtask.setUnindexedProperty(RESULT, result);
+					} else if(DataTypeUtils.isSupportedType(result.getClass())){
+						if(Float.class.isAssignableFrom(result.getClass())){
+							subtask.setUnindexedProperty(NUMERIC_TYPE, FLOAT);
+						} else if(Integer.class.isAssignableFrom(result.getClass())){
+							subtask.setUnindexedProperty(NUMERIC_TYPE, INTEGER);
+						} else if(Byte.class.isAssignableFrom(result.getClass())){
+							subtask.setUnindexedProperty(NUMERIC_TYPE, BYTE);
+						} else if(Short.class.isAssignableFrom(result.getClass())){
+							subtask.setUnindexedProperty(NUMERIC_TYPE, SHORT);
+						}
+						subtask.setUnindexedProperty(RESULT, result);
+					} else if(Serializable.class.isAssignableFrom(result.getClass())){
+						subtask.setUnindexedProperty(SERIALIZED, true);
+						subtask.setUnindexedProperty(RESULT, serialize(result));
+					}
+					try {
+						ds.put(subtask);
+					} catch (IllegalArgumentException e){
+						throw new IllegalArgumentException("Result type is not supported by this flow datastore!", e);
+					}
+					
+					if(count == null || count.intValue() == 0){
+						return 0;
+					}
+					
+					count = count - 1;
+					task.setUnindexedProperty(COUNT, count);
+					
+					ds.put(task);		
+					return count.intValue();
+				} catch (EntityNotFoundException e){
+					throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
 				}
-				
-				if(count == null || count.intValue() == 0){
-					return 0;
-				}
-				
-				count = count - 1;
-				task.setUnindexedProperty(COUNT, count);
-				
-				put(task);		
-				return count.intValue();
-			} finally {
-				tx.commit();
 			}
-		} catch (EntityNotFoundException e){
-			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
-		}
+			
+		}, -1);
 	}
 	
 	private Blob serialize(Object obj){
@@ -288,70 +209,59 @@ class DatastorePipeDatastore implements PipeDatastore {
 		}
 	}
 
-	public List<Object> getTaskResults(String taskId) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return getTaskResultsInternal(taskId);
-			} catch (ConcurrentModificationException e){
-				attempt++;
-			}
-		}
-		throw new ConcurrentModificationException("Cannot get task results even after " + RETRIES + " retries!");
-	}
-	
-	private List<Object> getTaskResultsInternal(String taskId) {
-		try {
-			Transaction tx = ds.beginTransaction();
-			try {
-				Entity task = get(getKey(taskId));
-				Long count = (Long) task.getProperty(COUNT);
-				if(count != null && count.intValue() != 0){
-					throw new IllegalStateException("All tasks haven't finished yet!");
-				}
-				
-				Long total = (Long) task.getProperty(TOTAL_COUNT);
-				
-				if(total == null){
-					throw new IllegalStateException("Total is null but should be greater than zero!");
-				}
-				List<Object> ret = new ArrayList<Object>(total.intValue());
-				for (int i = 0; i < total.intValue(); i++) {
-					Entity subtask = get(getKey(taskId, i));
-					Object result = subtask.getProperty(RESULT);
-					if(subtask.hasProperty(SERIALIZED) && result instanceof Blob){
-						result = deserialize((Blob)result);
-					} else if(Text.class.isAssignableFrom(result.getClass())){
-						result = ((Text)result).getValue();
-					}
-					Object numTypeObject = (Long) subtask.getProperty(NUMERIC_TYPE);
-					if(numTypeObject != null){
-						Long numType = (Long) numTypeObject;
-						switch (numType.intValue()) {
-						case BYTE:
-							result = Byte.valueOf(((Number)result).byteValue());
-							break;
-						case SHORT:
-							result = Short.valueOf(((Number)result).shortValue());
-							break;
-						case INTEGER:
-							result = Integer.valueOf(((Number)result).intValue());
-							break;
-						case FLOAT:
-							result = Float.valueOf(((Number)result).floatValue());
-							break;
-						}
+	public List<Object> getTaskResults(final String taskId) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<List<Object>>(){
+			
+			public List<Object> run(DatastoreService ds) {
+				try {
+					Entity task = ds.get(DatastoreHelper.getKey(taskId));
+					Long count = (Long) task.getProperty(COUNT);
+					if(count == null || (count != null && count.intValue() != 0)){
+						throw new IllegalStateException("All tasks haven't finished yet!");
 					}
 					
-					ret.add(result);
+					Long total = (Long) task.getProperty(TOTAL_COUNT);
+					
+					if(total == null){
+						throw new IllegalStateException("Total is null but should be greater than zero!");
+					}
+					List<Object> ret = new ArrayList<Object>(total.intValue());
+					for (int i = 0; i < total.intValue(); i++) {
+						Entity subtask = ds.get(DatastoreHelper.getKey(taskId, i));
+						Object result = subtask.getProperty(RESULT);
+						if(subtask.hasProperty(SERIALIZED) && result instanceof Blob){
+							result = deserialize((Blob)result);
+						} else if(Text.class.isAssignableFrom(result.getClass())){
+							result = ((Text)result).getValue();
+						}
+						Object numTypeObject = (Long) subtask.getProperty(NUMERIC_TYPE);
+						if(numTypeObject != null){
+							Long numType = (Long) numTypeObject;
+							switch (numType.intValue()) {
+							case BYTE:
+								result = Byte.valueOf(((Number)result).byteValue());
+								break;
+							case SHORT:
+								result = Short.valueOf(((Number)result).shortValue());
+								break;
+							case INTEGER:
+								result = Integer.valueOf(((Number)result).intValue());
+								break;
+							case FLOAT:
+								result = Float.valueOf(((Number)result).floatValue());
+								break;
+							}
+						}
+						
+						ret.add(result);
+					}
+					return Collections.unmodifiableList(ret);
+				} catch (EntityNotFoundException e){
+					throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
 				}
-				return Collections.unmodifiableList(ret);
-			} finally {
-				tx.commit();
 			}
-		} catch (EntityNotFoundException e){
-			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
-		}
+			
+		}, Collections.emptyList());
 	}
 	
 	private Object deserialize(Blob blob){
@@ -376,78 +286,32 @@ class DatastorePipeDatastore implements PipeDatastore {
 		return clearTaskLog(taskId, false);
 	}
 
-	public boolean clearTaskLog(String taskId, boolean force) {
-		int attempt = 1;
-		while(attempt <= RETRIES){
-			try {
-				return clearTaskLogIntrenal(taskId, force);
-			} catch (ConcurrentModificationException e){
-				attempt++;
+	public boolean clearTaskLog(final String taskId, final boolean force) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Boolean>(){
+			public Boolean run(DatastoreService ds) {
+				try {
+					Entity task = ds.get(DatastoreHelper.getKey(taskId));
+					Long count = (Long) task.getProperty(COUNT);
+					if(!force && count != null && count.intValue() != 0){
+						throw new IllegalStateException("All tasks haven't finished yet!");
+					}
+					
+					Long total = (Long) task.getProperty(TOTAL_COUNT);
+					
+					if(total == null){
+						throw new IllegalStateException("Total is null but should be greater than zero!");
+					}
+					
+					for (int i = 0; i < total.intValue(); i++) {
+						ds.delete(DatastoreHelper.getKey(taskId, i));
+					}
+					ds.delete(task.getKey());
+					return true;
+				} catch (EntityNotFoundException e){
+					return false;
+				}
 			}
-		}
-		return false;
-	}
-	
-	private  boolean clearTaskLogIntrenal(String taskId, boolean force) {
-		try {
-			Entity task = get(getKey(taskId));
-			Long count = (Long) task.getProperty(COUNT);
-			if(!force && count != null && count.intValue() != 0){
-				throw new IllegalStateException("All tasks haven't finished yet!");
-			}
-			
-			Long total = (Long) task.getProperty(TOTAL_COUNT);
-			
-			if(total == null){
-				throw new IllegalStateException("Total is null but should be greater than zero!");
-			}
-			
-			for (int i = 0; i < total.intValue(); i++) {
-				delete(getKey(taskId, i));
-			}
-			delete(task.getKey());
-			return true;
-		} catch (EntityNotFoundException e){
-			return false;
-		}
+		}, Boolean.FALSE);
 	}
 
-	private static Key getKey(String taskId) {
-		String old = NamespaceManager.get();
-		NamespaceManager.set(FLOW_NAMESPACE);
-		Key key = KeyFactory.createKey(TASK_KIND, taskId);
-		NamespaceManager.set(old);
-		return key;
-	}
-	
-	private Key getKey(String taskId, int index) {
-		String old = NamespaceManager.get();
-		NamespaceManager.set(FLOW_NAMESPACE);
-		Key key = KeyFactory.createKey(getKey(taskId), SUBTASK_KIND, index + 1);
-		NamespaceManager.set(old);
-		return key;
-	}
-	
-	private Entity get(Key key) throws EntityNotFoundException{
-		String old = NamespaceManager.get();
-		NamespaceManager.set(FLOW_NAMESPACE);
-		Entity en = ds.get(key);
-		NamespaceManager.set(old);
-		return en;
-	}
-	
-	private Key put(Entity en){
-		String old = NamespaceManager.get();
-		NamespaceManager.set(FLOW_NAMESPACE);
-		Key key = ds.put(en);
-		NamespaceManager.set(old);
-		return key;
-	}
-	
-	private void delete(Key key){
-		String old = NamespaceManager.get();
-		NamespaceManager.set(FLOW_NAMESPACE);
-		ds.delete(key);
-		NamespaceManager.set(old);
-	}
 }
