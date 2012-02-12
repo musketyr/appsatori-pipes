@@ -4,7 +4,7 @@ AppSatori Pipes is framework for easier concurrent background processing on
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
 environment.
 
-> Hint: Get [the latest version](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.1.jar)
+> Hint: Get [the latest version](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.2.jar)
 > to start experimenting
 
 
