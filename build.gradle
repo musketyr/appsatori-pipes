@@ -5,10 +5,8 @@ apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'code-quality'
 
-version = '0.5.2'
+version = '0.5.3'
 
-//sourceCompatibility	= '1.6'
-//targetCompatibility = '1.6'
 
 repositories {
     mavenCentral()
