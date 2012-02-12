@@ -4,7 +4,7 @@ AppSatori Pipes is framework for easier concurrent background processing on
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
 environment.
 
-> Hint: Get [the latest version](https://github.com/downloads/musketyr/appsatori-pipes/eu.appsatori.pipes-0.5.1.jar)
+> Hint: Get [the latest version](https://github.com/musketyr/appsatori-pipes/downloads)
 > to start experimenting
 
 
@@ -125,9 +125,9 @@ This means that they are realtivelly safe to use but their representation mustn'
 Supported object are saved to the datastore directly. This means that 
 [some coversion usually happens](http://code.google.com/appengine/docs/java/datastore/entities.html#Properties_and_Value_Types).
 Strings are particulary vunerable to 500 characters limit so the framework always convert [app engine Text type](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/Text.html) 
-to String before serving so do not use 
+to String before serving. Illegal argument exception is thrown if you try to use 
 [app engine Text type](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/Text.html)
-directly result of parallel execution. 
+as a result of parallel execution.
 
 Bytes, Shorts, Integers and Floats are handled properly for you by the framework. You don't need to be afraid that they are accidentaly
 converted to Longs and Doubles by the datastore.
