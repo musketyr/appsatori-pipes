@@ -42,11 +42,12 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 			return;
 		}
 		NodeResult result = NodeResult.END_RESULT;
+		Throwable t = null;
 		try {
 			result = execute();
 		} catch(Throwable th){
 			DeferredTaskContext.setDoNotRetry(true);
-			throw new RuntimeException("Exception during running task.", th);
+			t = th;
 		}
 		
 		if(result == null || !result.hasNext()){
@@ -54,6 +55,10 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 			return;
 		}
 		type.handleNext(Pipes.getQueueName(node), baseTaskId, index, result);
+		
+		if(t != null){
+			throw new RuntimeException("Exception during running task.", t);
+		}
 	}
 	
 	private N createTaskInstance() {

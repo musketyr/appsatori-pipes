@@ -206,6 +206,9 @@ class DatastorePipeDatastore implements PipeDatastore {
 
 	private int logTaskFinishedInternal(String taskId, int index, Object result) {
 		try {
+			if(result instanceof Text){
+				throw new IllegalArgumentException("Text is not supported result!");
+			}
 			Transaction tx = ds.beginTransaction();
 			try {
 				Entity task = get(getKey(taskId));
