@@ -58,7 +58,7 @@ class NodeTaskSpec extends Specification {
 		
 		then:
 		1 * fds.isActive('taskid') >> true
-		100 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+		10 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
 	def 'Execute cometetive task'(){
@@ -75,7 +75,7 @@ class NodeTaskSpec extends Specification {
 		
 		then:
 		1 * fds.isActive('taskid') >> true
-		100 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+		10 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
 	def 'Execute unfisished parallel task'(){

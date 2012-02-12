@@ -25,15 +25,15 @@ public enum SerialPipeImpl implements Pipe, SerialPipe{
 		return run(state, null);
 	}
 	
-	public <R, N extends Node<SerialPipe, R>> NodeResult run(Class<N> next, R result){
+	public <R, N extends Node<SerialPipe, ? super R>> NodeResult run(Class<N> next, R result){
 		return NodeResult.create(PipeType.SERIAL, next, result);
 	}
 	
-	public <E, R extends Collection<E>, N extends Node<SerialPipe, E>> NodeResult sprint(Class<N> next, R result){
+	public <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> NodeResult sprint(Class<N> next, R result){
 		return NodeResult.create(PipeType.COMPETETIVE, next, result);
 	}
 	
-	public <E, R extends Collection<E>, N extends Node<ParallelPipe, E>> NodeResult fork(Class<N> next, R result){
+	public <E, R extends Collection<E>, N extends Node<ParallelPipe, ? super E>> NodeResult fork(Class<N> next, R result){
 		return NodeResult.create(PipeType.PARALLEL, next, result);
 	}
 	

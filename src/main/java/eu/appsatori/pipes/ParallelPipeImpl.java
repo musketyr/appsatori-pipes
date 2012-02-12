@@ -18,27 +18,27 @@ package eu.appsatori.pipes;
 
 import java.util.Collection;
 
-enum ParallelPipeImpl implements Pipe, ParallelPipe {
+enum ParallelPipeImpl implements ParallelPipe {
 	INSTANCE;
 	
 	/* (non-Javadoc)
 	 * @see eu.appsatori.pipes.ParalellPipe#sprint(java.lang.Class, R)
 	 */
-	public <R, N extends Node<SerialPipe, R>> NodeResult sprint(Class<N> next, R result){
+	public <R, N extends Node<SerialPipe, ? super R>> NodeResult sprint(Class<N> next, R result){
 		return NodeResult.create(PipeType.COMPETETIVE, next, result);
 	}
 	
 	/* (non-Javadoc)
 	 * @see eu.appsatori.pipes.ParalellPipe#next(java.lang.Class, R)
 	 */
-	public <R, N extends Node<ParallelPipe, R>> NodeResult next(Class<N> next, R result){
+	public <R, N extends Node<ParallelPipe, ? super R>> NodeResult next(Class<N> next, R result){
 		return NodeResult.create(PipeType.PARALLEL, next, result);
 	}
 	
 	/* (non-Javadoc)
 	 * @see eu.appsatori.pipes.ParalellPipe#join(java.lang.Class, E)
 	 */
-	public <E, R extends Collection<E>, N extends Node<SerialPipe, R>> NodeResult join(Class<N> next, E result){
+	public <E, R extends Collection<? super E>, N extends Node<SerialPipe, R>> NodeResult join(Class<N> next, E result){
 		return NodeResult.create(PipeType.SERIAL, next, result);
 	}
 	

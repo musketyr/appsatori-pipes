@@ -41,13 +41,13 @@ public interface ParallelPipe extends Pipe{
 	 * @param result Argument for the next node. It is not saved to the datastore but serialized as a part of the {@link DeferredTask}
 	 * @return {@link NodeResult} signaling that only first task will proceed to the following node
 	 */
-	public abstract <R, N extends Node<SerialPipe, R>> NodeResult sprint(
+	public abstract <R, N extends Node<SerialPipe, ? super R>> NodeResult sprint(
 			Class<N> next, R result);
 
-	public abstract <R, N extends Node<ParallelPipe, R>> NodeResult next(
+	public abstract <R, N extends Node<ParallelPipe, ? super R>> NodeResult next(
 			Class<N> next, R result);
 
-	public abstract <E, R extends Collection<E>, N extends Node<SerialPipe, R>> NodeResult join(
+	public abstract <E, R extends Collection<? super E>, N extends Node<SerialPipe, R>> NodeResult join(
 			Class<N> next, E result);
 
 }

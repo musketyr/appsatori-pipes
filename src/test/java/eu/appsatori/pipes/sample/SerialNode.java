@@ -24,14 +24,14 @@ import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
 import eu.appsatori.pipes.SerialPipe;
 
-public class SerialNode implements Node<SerialPipe, Integer> {
+public class SerialNode implements Node<SerialPipe, Number> {
 
 	private static final Logger log = Logger.getLogger(SerialNode.class.getName());
 	
-	public NodeResult execute(SerialPipe pipe, Integer arg) {
+	public NodeResult execute(SerialPipe pipe, Number arg) {
 		log.info("Running serial task, I've got: " + arg);
-		List<Long> list = new ArrayList<Long>(1000);
-		for (long i = 0; i < 100; i++) {
+		List<Long> list = new ArrayList<Long>(arg.intValue());
+		for (long i = 0; i < arg.intValue(); i++) {
 			list.add(i);
 		}
 		return pipe.fork(ParallelNode.class, list);

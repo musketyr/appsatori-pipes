@@ -23,13 +23,13 @@ public interface SerialPipe extends Pipe {
 	public abstract <R, N extends Node<SerialPipe, R>> NodeResult run(
 			Class<N> state);
 
-	public abstract <R, N extends Node<SerialPipe, R>> NodeResult run(
+	public abstract <R, N extends Node<SerialPipe, ? super R>> NodeResult run(
 			Class<N> next, R result);
 
-	public abstract <E, R extends Collection<E>, N extends Node<SerialPipe, E>> NodeResult sprint(
+	public abstract <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> NodeResult sprint(
 			Class<N> next, R result);
 
-	public abstract <E, R extends Collection<E>, N extends Node<ParallelPipe, E>> NodeResult fork(
+	public abstract <E, R extends Collection<E>, N extends Node<ParallelPipe, ? super E>> NodeResult fork(
 			Class<N> next, R result);
 
 }
