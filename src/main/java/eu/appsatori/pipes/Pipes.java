@@ -92,7 +92,11 @@ public class Pipes {
 	private static void startTask(Queue q, PipeType type, Class node, Object arg, String taskId, int index) {
 		NodeTask nodeTask = new NodeTask(type, node, taskId, index, arg);
 		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeTask).retryOptions(RetryOptions.Builder.withTaskRetryLimit(0));
-		q.add(options);
+		try {
+			q.add(options);
+		} catch (IllegalStateException e){
+			QueueFactory.getDefaultQueue().add(options);
+		}
 	}
 
 	static <N extends Node<?,?>> Queue getQueue(Class<? extends Node<?,?>> node) {

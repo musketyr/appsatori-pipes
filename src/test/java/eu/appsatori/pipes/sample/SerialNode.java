@@ -22,8 +22,10 @@ import java.util.logging.Logger;
 
 import eu.appsatori.pipes.Node;
 import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.Queue;
 import eu.appsatori.pipes.SerialPipe;
 
+@Queue("serial")
 public class SerialNode implements Node<SerialPipe, Number> {
 
 	private static final Logger log = Logger.getLogger(SerialNode.class.getName());

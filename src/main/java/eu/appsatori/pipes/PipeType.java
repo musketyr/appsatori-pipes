@@ -144,7 +144,12 @@ enum PipeType {
 			q = QueueFactory.getQueue(queue);
 		}
 		for (int i = 0; i < tasksCount; i++) {
-			q.deleteTask("" + i + "_" + baseTaskId);
+			String taskName = "" + i + "_" + baseTaskId;
+			try {
+				q.deleteTask(taskName);
+			} catch (IllegalStateException e){
+				QueueFactory.getDefaultQueue().deleteTask(taskName);
+			}
 		}
 	}
 
