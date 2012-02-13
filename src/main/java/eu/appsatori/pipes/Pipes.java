@@ -16,7 +16,8 @@
 
 package eu.appsatori.pipes;
 
-import java.io.Serializable;
+import java.util.Collection;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import com.google.appengine.api.taskqueue.Queue;
@@ -26,6 +27,8 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 
 
 public class Pipes {
+	
+	private static final Random RANDOM = new Random();
 
 	private static final Pattern TASK_NAME_PATTERN = Pattern.compile("[^0-9a-zA-Z\\-\\_]");  
 
@@ -37,19 +40,19 @@ public class Pipes {
 	
 	private Pipes() { }
 	
-	public static <P extends Pipe, R extends Serializable, N extends Node<P,R>> String run(Class<N> state){
+	public static <R, N extends Node<SerialPipe, ? super R>> String run(Class<N> state){
 		return run(state, null);
 	}
 	
-	public static <P extends Pipe,R extends Serializable, N extends Node<P,R>> String run(Class<N> next, R result){
+	public static <R, N extends Node<SerialPipe, ? super R>> String run(Class<N> next, R result){
 		return start(PipeType.SERIAL, next, result);
 	}
 	
-	public static <P extends Pipe,R extends Serializable, N extends Node<P,R>> String fork(Class<N> next, R result){
+	public static <E, R extends Collection<E>, N extends Node<ParallelPipe, ? super E>> String fork(Class<N> next, R result){
 		return start(PipeType.PARALLEL, next, result);
 	}
 	
-	public static <P extends Pipe,R extends Serializable, N extends Node<P,R>> String sprint(Class<N> next, R result){
+	public static <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> String sprint(Class<N> next, R result){
 		return start(PipeType.COMPETETIVE, next, result);
 	}
 	
@@ -95,7 +98,17 @@ public class Pipes {
 		try {
 			q.add(options);
 		} catch (IllegalStateException e){
-			QueueFactory.getDefaultQueue().add(options);
+			if(!QueueFactory.getDefaultQueue().equals(q)){
+				startTask(QueueFactory.getDefaultQueue(), type, node, arg, taskId, index);
+			} else {
+				throw e;
+			}
+		} catch (IllegalArgumentException e){
+			if(e.getMessage().startsWith("Task size too large") && !(arg instanceof StashedArgument)){
+				startTask(q, type, node, new StashedArgument(pipeDatastore.stashArgument(arg)), taskId, index);
+			} else {
+				throw e;
+			}
 		}
 	}
 
@@ -120,7 +133,7 @@ public class Pipes {
 	
 	
 	private static String getUniqueTaskId(String from){
-		return TASK_NAME_PATTERN.matcher(from + "_" + System.currentTimeMillis()).replaceAll("_");
+		return TASK_NAME_PATTERN.matcher(from + "_" + RANDOM.nextInt(1000) + "_" + System.currentTimeMillis()).replaceAll("_");
 	}
 	
 	

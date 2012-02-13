@@ -35,11 +35,15 @@ class DatastoreHelper {
 			DatastoreService ds = DatastoreServiceFactory.getDatastoreService(config);
 			Transaction tx = ds.beginTransaction();
 			try {
-				return op.run(ds);
+				V result = op.run(ds);
+				tx.commit();
+				return result;
 			} catch (ConcurrentModificationException e){
 				attempt++;
 			} finally {
-				tx.commit();
+				if(tx.isActive()){
+					tx.rollback();
+				}
 				NamespaceManager.set(oldNs);
 			}
 		}

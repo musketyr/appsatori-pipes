@@ -21,6 +21,13 @@ import java.util.Collection;
 public enum SerialPipeImpl implements Pipe, SerialPipe{
 	INSTANCE;
 	
+	public <E, R extends Collection<E>, N extends Node<SerialPipe,? super E>> NodeResult spread(Class<N> next, R result) {
+		for(E e : result){
+			Pipes.run(next, e);
+		}
+		return NodeResult.END_RESULT;
+	};
+	
 	public <R, N extends Node<SerialPipe, R>> NodeResult run(Class<N> state){
 		return run(state, null);
 	}

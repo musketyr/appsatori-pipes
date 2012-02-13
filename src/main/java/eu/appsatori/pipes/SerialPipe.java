@@ -22,6 +22,8 @@ public interface SerialPipe extends Pipe {
 
 	public abstract <R, N extends Node<SerialPipe, R>> NodeResult run(
 			Class<N> state);
+	
+	public abstract <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> NodeResult spread(Class<N> next, R result);
 
 	public abstract <R, N extends Node<SerialPipe, ? super R>> NodeResult run(
 			Class<N> next, R result);

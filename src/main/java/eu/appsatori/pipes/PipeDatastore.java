@@ -23,6 +23,10 @@ import java.util.List;
  */
 interface PipeDatastore {
 	
+	long stashArgument(Object argument);
+	
+	Object retrieveArgument(long key);
+	
 	boolean isActive(String taskId);
 	
 	boolean setActive(String taskId, boolean active);

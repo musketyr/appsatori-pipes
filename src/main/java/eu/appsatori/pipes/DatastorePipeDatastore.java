@@ -32,6 +32,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
 
 
@@ -50,8 +51,38 @@ class DatastorePipeDatastore implements PipeDatastore {
 	private static final int INTEGER = 2;
 	private static final int BYTE = 3;
 	
+	private static final String STASH_KIND = "stash";
+	private static final String ARG = "arg";
+	
 	
 	DatastorePipeDatastore(){}
+	
+	public Object retrieveArgument(final long key) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Object>() {
+			public Object run(DatastoreService ds) {
+				try {
+					Blob blob = (Blob) ds.get(KeyFactory.createKey(STASH_KIND, key)).getProperty(ARG);
+					if(blob == null){
+						return null;
+					}
+					return deserialize(blob);
+				} catch (EntityNotFoundException e) {
+					return null;
+				}
+			}
+		}, null);
+	}
+	
+	public long stashArgument(final Object argument) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Long>() {
+			public Long run(DatastoreService ds) {
+				Entity stash = new Entity(STASH_KIND);
+				stash.setUnindexedProperty(ARG, serialize(argument));
+				return ds.put(stash).getId();
+			}
+		}, 0L);
+	}
+	
 	
 	public boolean isActive(final String taskId) {
 		return DatastoreHelper.call(new DatastoreHelper.Operation<Boolean>(){

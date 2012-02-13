@@ -1,11 +1,12 @@
 
 
+
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'code-quality'
 
-version = '0.5.4'
+version = '0.5.5'
 
 
 repositories {

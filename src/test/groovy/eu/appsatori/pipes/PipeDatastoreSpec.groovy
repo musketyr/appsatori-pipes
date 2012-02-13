@@ -142,6 +142,15 @@ abstract class PipeDatastoreSpec extends Specification{
 		then:
 		thrown(IllegalArgumentException)
 	}
+	
+	def "Stash argument and retrieve"(){
+		when:
+		def testObject = "test object"
+		long key = pds.stashArgument(testObject)
+		
+		then:
+		testObject == pds.retrieveArgument(key)
+	}
 
 	protected abstract PipeDatastore createDatastore();
 	

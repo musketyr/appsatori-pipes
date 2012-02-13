@@ -72,7 +72,11 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 	}
 
 	public NodeResult execute(){
-		return type.execute(createTaskInstance(), arg, index);
+		Object a = arg;
+		if(arg instanceof StashedArgument){
+			a = Pipes.getPipeDatastore().retrieveArgument(((StashedArgument)arg).getKey());
+		}
+		return type.execute(createTaskInstance(), a, index);
 	}
 	
 }
