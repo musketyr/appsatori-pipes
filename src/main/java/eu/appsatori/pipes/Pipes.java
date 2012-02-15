@@ -26,6 +26,14 @@ import com.google.appengine.api.taskqueue.RetryOptions;
 import com.google.appengine.api.taskqueue.TaskOptions;
 
 
+/**
+ * Facade class to the AppSatori Pipes framework.
+ * 
+ * Offers methods to start execution of the nodes.
+ * 
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ *
+ */
 public class Pipes {
 	
 	private static final Random RANDOM = new Random();
@@ -40,20 +48,57 @@ public class Pipes {
 	
 	private Pipes() { }
 	
-	public static <R, N extends Node<SerialPipe, ? super R>> String run(Class<N> state){
-		return run(state, null);
+	/**
+	 * Runs the selected node.
+	 * 
+	 * @param node class of the node to be run
+	 */
+	public static <R, N extends Node<SerialPipe, ? super R>> void run(Class<N> node){
+		run(node, null);
 	}
 	
-	public static <R, N extends Node<SerialPipe, ? super R>> String run(Class<N> next, R result){
-		return start(PipeType.SERIAL, next, result);
+	
+	/**
+	 * Runs the selected node with given parameter
+	 * @param node class of the node to be run
+	 * @param parameter	parameter for the node
+	 */
+	public static <R, N extends Node<SerialPipe, ? super R>> void run(Class<N> node, R parameter){
+		start(PipeType.SERIAL, node, parameter);
 	}
 	
-	public static <E, R extends Collection<E>, N extends Node<ParallelPipe, ? super E>> String fork(Class<N> next, R result){
-		return start(PipeType.PARALLEL, next, result);
+	/**
+	 * For each element of <code>parameters</code> argument runs one node in parallel.
+	 * The pipe will be collecting results of the executions so it could be send to one of the following
+	 * nodes using the {@link ParallelPipe#join(Class, Object)} method. 
+	 * @param node class of the node to be run in parallel
+	 * @param parameters the collection of parameters for the nodes
+	 */
+	public static <E, R extends Collection<E>, N extends Node<ParallelPipe, ? super E>> void fork(Class<N> node, R parameters){
+		start(PipeType.PARALLEL, node, parameters);
 	}
 	
-	public static <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> String sprint(Class<N> next, R result){
-		return start(PipeType.COMPETETIVE, next, result);
+	/**
+	 * For each element of <code>parameters</code> argument runs one independent node in parallel.
+	 * Only the fastest node will proceed to the following node.
+	 * @param node class of the node to be run in parallel
+	 * @param parameters the collection of parameters for the nodes
+	 */
+	public static <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> void sprint(Class<N> node, R parameters){
+		start(PipeType.COMPETETIVE, node, parameters);
+	}
+	
+	/**
+	 * For each element of <code>parameters</code> argument runs one independent node in parallel.
+	 * All the nodes will proceed to following node.
+	 * This method is is used to start multiple independent serial nodes in parallel.
+	 * @param node class of the node to be run in parallel
+	 * @param parameters the collection of parameters for the nodes
+	 */
+	public static<E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> void spread(Class<N> next, R parameters){
+		for(E e: parameters){
+			run(next, e);
+		}
 	}
 	
 	

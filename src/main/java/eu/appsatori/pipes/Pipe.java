@@ -16,8 +16,16 @@
 
 package eu.appsatori.pipes;
 
+/**
+ * Abstract representation of pipe controller.
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ */
 public interface Pipe {
 	
+	/**
+	 * Finish the execution of current node without proceeding to any other node.
+	 * @return {@link NodeResult} representing the end of this pipe
+	 */
 	NodeResult finish();
 	
 }

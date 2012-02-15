@@ -20,6 +20,15 @@ import com.google.appengine.api.taskqueue.DeferredTask;
 import com.google.appengine.api.taskqueue.DeferredTaskContext;
 
 
+/**
+ * Internal implementation of {@link DeferredTask} used to run nodes in queues.
+ * 
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ *
+ * @param <P> either {@link SerialPipe} or {@link ParallelPipe} to control the flow
+ * @param <A> type of argument passed to the node
+ * @param <N> type of the passed node
+ */
 class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 
 	private static final long serialVersionUID = -3569377001403545004L;

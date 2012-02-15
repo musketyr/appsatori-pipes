@@ -25,12 +25,14 @@ import com.google.appengine.api.datastore.Entity
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.tools.development.testing.LocalBlobstoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalFileServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 
 class DatastorePipeDatastoreSpec extends PipeDatastoreSpec {
 	
-	LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig())
+	LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig(), new LocalBlobstoreServiceTestConfig(), new LocalFileServiceTestConfig())
 	PipeDatastore pds = createDatastore()
 	DatastoreService ds = DatastoreServiceFactory.datastoreService
 	

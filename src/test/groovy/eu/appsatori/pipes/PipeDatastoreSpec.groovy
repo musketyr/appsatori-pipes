@@ -146,7 +146,7 @@ abstract class PipeDatastoreSpec extends Specification{
 	def "Stash argument and retrieve"(){
 		when:
 		def testObject = "test object"
-		long key = pds.stashArgument(testObject)
+		String key = pds.stashArgument(testObject)
 		
 		then:
 		testObject == pds.retrieveArgument(key)

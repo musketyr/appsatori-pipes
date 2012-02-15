@@ -18,17 +18,38 @@ package eu.appsatori.pipes;
 import java.util.List;
 
 /**
- * Datastore to store pipe states and results.
+ * Internal datastore to store pipe states and results.
  * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
  */
 interface PipeDatastore {
 	
-	long stashArgument(Object argument);
+	/**
+	 * Keeps argument for the task and returns its path.
+	 * @param argument the argument to be kept
+	 * @return path of the kept argument
+	 */
+	String stashArgument(Object argument);
 	
-	Object retrieveArgument(long key);
+	/**
+	 * Retrieves the argument by given path and removes it from the datastore. 
+	 * @param path path to the argument
+	 * @return argument kept in given path
+	 */
+	Object retrieveArgument(String path);
 	
+	/**
+	 * Whether the task is still active.
+	 * @param taskId id of the task
+	 * @return <code>true</code> if the task is still active
+	 */
 	boolean isActive(String taskId);
 	
+	/**
+	 * Sets the active state of the task.
+	 * @param taskId id of the task
+	 * @param active new active state
+	 * @return whether setting the state succeeded 
+	 */
 	boolean setActive(String taskId, boolean active);
 	
 	

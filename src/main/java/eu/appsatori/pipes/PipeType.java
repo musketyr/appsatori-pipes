@@ -26,6 +26,12 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 
 
 
+/**
+ * Internal representation of type of pipe.
+ * 
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ *
+ */
 enum PipeType {
 	SERIAL {
 		public int getParallelTasksCount(Object arg) {

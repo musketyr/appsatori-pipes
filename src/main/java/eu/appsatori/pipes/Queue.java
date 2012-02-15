@@ -22,9 +22,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * This annotation signalizes in which queue should be the node executed.
+ * 
+ * If there is no queue of given name the default one will be used.
+ * 
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
 public @interface Queue {
+	/**
+	 * @return the name of the queue
+	 */
 	String value();
 }

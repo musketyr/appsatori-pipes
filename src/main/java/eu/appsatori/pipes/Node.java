@@ -50,7 +50,7 @@ public interface Node<P extends Pipe, A> {
 	 * To start another pipe as a side effect of the task use one of the {@link Pipes} methods.
 	 * 
 	 * @param pipe one of {@link ParallelPipe} or {@link SerialPipe} pipe controllers
-	 * @param arg parameeter of the task
+	 * @param arg parameter of the task
 	 * @return {@link NodeResult} signaling following pipe flow
 	 */
 	NodeResult execute(P pipe, A arg);

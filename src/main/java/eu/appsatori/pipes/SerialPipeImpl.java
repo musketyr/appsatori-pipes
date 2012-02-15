@@ -18,32 +18,53 @@ package eu.appsatori.pipes;
 
 import java.util.Collection;
 
-public enum SerialPipeImpl implements Pipe, SerialPipe{
+/**
+ * Internal implementation of {@link SerialPipe}.
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ *
+ */
+enum SerialPipeImpl implements Pipe, SerialPipe{
 	INSTANCE;
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.SerialPipe#spread(java.lang.Class, java.util.Collection)
+	 */
 	public <E, R extends Collection<E>, N extends Node<SerialPipe,? super E>> NodeResult spread(Class<N> next, R result) {
-		for(E e : result){
-			Pipes.run(next, e);
-		}
+		Pipes.spread(next, result);
 		return NodeResult.END_RESULT;
 	};
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.SerialPipe#run(java.lang.Class)
+	 */
 	public <R, N extends Node<SerialPipe, R>> NodeResult run(Class<N> state){
 		return run(state, null);
 	}
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.SerialPipe#run(java.lang.Class, java.lang.Object)
+	 */
 	public <R, N extends Node<SerialPipe, ? super R>> NodeResult run(Class<N> next, R result){
 		return NodeResult.create(PipeType.SERIAL, next, result);
 	}
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.SerialPipe#sprint(java.lang.Class, java.util.Collection)
+	 */
 	public <E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> NodeResult sprint(Class<N> next, R result){
 		return NodeResult.create(PipeType.COMPETETIVE, next, result);
 	}
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.SerialPipe#fork(java.lang.Class, java.util.Collection)
+	 */
 	public <E, R extends Collection<E>, N extends Node<ParallelPipe, ? super E>> NodeResult fork(Class<N> next, R result){
 		return NodeResult.create(PipeType.PARALLEL, next, result);
 	}
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.Pipe#finish()
+	 */
 	public final NodeResult finish(){
 		return NodeResult.END_RESULT;
 	}

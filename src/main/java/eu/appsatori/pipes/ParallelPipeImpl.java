@@ -18,6 +18,11 @@ package eu.appsatori.pipes;
 
 import java.util.Collection;
 
+/**
+ * Internal implementation of {@link ParallelPipe}.
+ * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
+ *
+ */
 enum ParallelPipeImpl implements ParallelPipe {
 	INSTANCE;
 	
@@ -42,6 +47,18 @@ enum ParallelPipeImpl implements ParallelPipe {
 		return NodeResult.create(PipeType.SERIAL, next, result);
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.ParallelPipe#spread(java.lang.Class, java.lang.Object)
+	 */
+	public <R, N extends eu.appsatori.pipes.Node<SerialPipe,? super R>> NodeResult spread(java.lang.Class<N> next, R result) {
+		Pipes.run(next, result);
+		return NodeResult.END_RESULT;
+	};
+	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.Pipe#finish()
+	 */
 	public final NodeResult finish(){
 		return NodeResult.END_RESULT;
 	}
