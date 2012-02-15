@@ -73,7 +73,8 @@ You can specify the name of the queue where is the node located by using `Queue`
 > class cast exceptions.
 
 
-There are always four ways how can the *node* handle its `execute` method.
+There are always four ways how can the *node* handle its `execute` method. There is also always `finish` method
+to end the pipe execution.
 
 
 ##Run or Next
