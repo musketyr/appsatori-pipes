@@ -68,16 +68,56 @@ exactly the same as returning result of *serial pipe* from the *node* execution.
 You can specify the name of the queue where is the node located by using `Queue` annotation. The queue must exist.
 
 
-### Three ways of execution
-> Hint: The framework is using generics heavily to check the *nodes* are chained properly. Use them properly to avoid
+## Four ways of execution
+> Hint: The framework is using generics extensively to check the *nodes* are chained properly. Use them properly to avoid
 > class cast exceptions.
 
 
-There are always three ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
+There are always four ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
 throught the *serial* or the *parallel pipe*.
 
 
-**Serial Pipes**
+##Run or Next
+
+**Run** (for serial nodes) or **next** (for parallel nodes) calls just runs the node serially one by one. 
+
+![Serial](http://klient.appsatori.eu/pipes/haystack-serial-one.png)
+
+It's just like one farmer is searching the single needle in the first than in the second and finally in the third haystack.
+
+
+##Spread
+
+**Spread** is just shortcut for running more independent serial processes.
+
+![Serial](http://klient.appsatori.eu/pipes/haystack-spread.png)
+
+It's just like many farmers are searching many needles in many haystacks side by side but they don't care about
+each other. As soon as the farmer finds his needle he just go home and let his companions to continue searching.
+
+
+##Fork and Join
+
+**Fork** creates multiple parallel nodes and than you can **join** them to collects the results in one serial node.
+
+![Parallel](http://klient.appsatori.eu/pipes/haystack-parallel.png)
+
+It's just like you many farmers are searching many needles in many haystacks side by side. As soon as thay finish they
+come together and count the needles.
+
+
+##Sprint
+
+**Sprint** creates multiple parallel nodes but only the result of the fastest one is send to next serial node.
+
+![Sprint](http://klient.appsatori.eu/pipes/haystack-sprint.png)
+
+It's just like you many farmers are searching the single needle in many haystacks side by side. As soon as the first one
+finds it he tells his companions to stop the work.
+
+
+
+**Sprint**
 
 1. direct chaining results to the next node using `run` method
 2. forking the results so each item will be handled separely using the `fork` method
