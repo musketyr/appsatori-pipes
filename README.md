@@ -73,8 +73,7 @@ You can specify the name of the queue where is the node located by using `Queue`
 > class cast exceptions.
 
 
-There are always four ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
-throught the *serial* or the *parallel pipe*.
+There are always four ways how can the *node* handle its `execute` method.
 
 
 ##Run or Next
@@ -115,22 +114,6 @@ come together and count the needles.
 It's just like you many farmers are searching the single needle in many haystacks side by side. As soon as the first one
 finds it he tells his companions to stop the work.
 
-
-
-**Sprint**
-
-1. direct chaining results to the next node using `run` method
-2. forking the results so each item will be handled separely using the `fork` method
-3. forking the results so each item will be handled separelly but only the first successfull task will proceed to next node using the `sprint` method
-  
-
-**Parallel Pipes**
-
-1. waiting unless all tasks have finished and continuing in parallel processing using the `next` method
-2. waiting unless all tasks have finished and passing collected result for serial processing using the `join` method
-3. waiting unless all tasks have finished and passing collected result for challange processing using the `sprint` method
-
-
 ## App Engine Details
 
 ### Costs
@@ -143,8 +126,10 @@ finds it he tells his companions to stop the work.
 Serial pipes runs directly using
 [deffered tasks](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/taskqueue/DeferredTask.html)
 so the results are not stored into the datastore but count towards 
-[tasks quota](http://code.google.com/appengine/docs/quotas.html#Task_Queue). This also applies on both
-serial and parallel pipes' parameters. 
+[tasks quota](http://code.google.com/appengine/docs/quotas.html#Task_Queue). This applies on both
+serial and parallel pipes' parameters. There is one exception: if the arguments are bigger than allowed limit 
+they are stored in the datastore.
+
 
 Results of parallel pipes are stored into
 the datastore until the last task is finished. Datastore operations are designed to be as minimal as possible but 
