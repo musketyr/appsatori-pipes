@@ -109,7 +109,7 @@ come together and count the needles.
 
 ##Sprint
 
-**Sprint** creates multiple parallel nodes but only the result of the fastest one is send to next serial node.
+**Sprint** runs node in multiple parallel pipes but only the result of the fastest one is send to next node.
 
 ![Sprint](http://klient.appsatori.eu/pipes/haystack-sprint.png)
 
