@@ -1,6 +1,6 @@
 # AppSatori Pipes
 
-AppSatori Pipes is framework for easier concurrent background processing on 
+[AppSatori](http://www.appsatori.eu) Pipes is framework for easier concurrent background processing on 
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
 environment.
 
