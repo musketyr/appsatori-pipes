@@ -5,7 +5,7 @@ AppSatori Pipes is framework for easier concurrent background processing on
 environment.
 
 > Hint: AppSatori Pipes are available in the Maven Central. You can simply
-> use 'eu.appsatori:pipes:0.6.0' as a dependency
+> use group: "eu.appsatori", name:"pipes", version: "0.6.0" as a dependency
 
 
 **Key concepts**
