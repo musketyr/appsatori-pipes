@@ -73,13 +73,13 @@ You can specify the name of the queue where is the node located by using `Queue`
 > class cast exceptions.
 
 
-There are always four ways how can the *node* handle its `execute` method. There is also always `finish` method
-to end the pipe execution.
+There are always four ways how can the *node* handle its `execute` method. There is always `finish` method
+to end the pipe execution too.
 
 
 ##Run or Next
 
-**Run** (for serial nodes) or **next** (for parallel nodes) calls just runs the node serially one by one. 
+**Run** (for serial nodes) or **next** (for parallel nodes) calls just runs the nodes serially one by one. 
 
 ![Serial](http://klient.appsatori.eu/pipes/haystack-serial-one.png)
 
@@ -98,7 +98,8 @@ each other. As soon as the farmer finds his needle he just go home and let his c
 
 ##Fork and Join
 
-**Fork** creates multiple parallel nodes and than you can **join** them to collects the results in one serial node.
+**Fork** runs node in multiple parallel pipes. As soon as parallel processing is over you can 
+**join** them to collects the results for the next node.
 
 ![Parallel](http://klient.appsatori.eu/pipes/haystack-parallel.png)
 
