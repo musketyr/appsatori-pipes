@@ -1,11 +1,11 @@
 # AppSatori Pipes
 
-AppSatori Pipes is framework for easier concurrent background processing on 
+[AppSatori](http://www.appsatori.eu) Pipes is framework for easier concurrent background processing on 
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
 environment.
 
-> Hint: Get [the latest version](https://github.com/musketyr/appsatori-pipes/downloads)
-> to start experimenting
+> Hint: AppSatori Pipes are available in the Maven Central. You can simply
+> use group: "eu.appsatori", name:"pipes", version: "0.6.0" as a dependency
 
 
 **Key concepts**
@@ -68,28 +68,53 @@ exactly the same as returning result of *serial pipe* from the *node* execution.
 You can specify the name of the queue where is the node located by using `Queue` annotation. The queue must exist.
 
 
-### Three ways of execution
-> Hint: The framework is using generics heavily to check the *nodes* are chained properly. Use them properly to avoid
+## Four ways of execution
+> Hint: The framework is using generics extensively to check the *nodes* are chained properly. Use them properly to avoid
 > class cast exceptions.
 
 
-There are always three ways how can the *node* handle its `execute` method. The concreate way depends if they are executed
-throught the *serial* or the *parallel pipe*.
+There are always four ways how can the *node* handle its `execute` method. There is always `finish` method
+to end the pipe execution too.
 
 
-**Serial Pipes**
+##Run or Next
 
-1. direct chaining results to the next node using `run` method
-2. forking the results so each item will be handled separely using the `fork` method
-3. forking the results so each item will be handled separelly but only the first successfull task will proceed to next node using the `sprint` method
-  
+**Run** (for serial nodes) or **next** (for parallel nodes) calls just runs the nodes serially one by one. 
 
-**Parallel Pipes**
+![Serial](http://klient.appsatori.eu/pipes/haystack-serial-one.png)
 
-1. waiting unless all tasks have finished and continuing in parallel processing using the `next` method
-2. waiting unless all tasks have finished and passing collected result for serial processing using the `join` method
-3. waiting unless all tasks have finished and passing collected result for challange processing using the `sprint` method
+It's just like one farmer is searching the single needle in the first than in the second and finally in the third haystack.
 
+
+##Spread
+
+**Spread** is just shortcut for running more independent serial processes.
+
+![Serial](http://klient.appsatori.eu/pipes/haystack-spread.png)
+
+It's just like many farmers are searching many needles in many haystacks side by side but they don't care about
+each other. As soon as the farmer finds his needle he just go home and let his companions to continue searching.
+
+
+##Fork and Join
+
+**Fork** runs node in multiple parallel pipes. As soon as parallel processing is over you can 
+**join** them to collects the results for the next node.
+
+![Parallel](http://klient.appsatori.eu/pipes/haystack-parallel.png)
+
+It's just like you many farmers are searching many needles in many haystacks side by side. As soon as thay finish they
+come together and count the needles.
+
+
+##Sprint
+
+**Sprint** runs node in multiple parallel pipes but only the result of the fastest one is send to next node.
+
+![Sprint](http://klient.appsatori.eu/pipes/haystack-sprint.png)
+
+It's just like you many farmers are searching the single needle in many haystacks side by side. As soon as the first one
+finds it he tells his companions to stop the work.
 
 ## App Engine Details
 
@@ -103,8 +128,10 @@ throught the *serial* or the *parallel pipe*.
 Serial pipes runs directly using
 [deffered tasks](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/taskqueue/DeferredTask.html)
 so the results are not stored into the datastore but count towards 
-[tasks quota](http://code.google.com/appengine/docs/quotas.html#Task_Queue). This also applies on both
-serial and parallel pipes' parameters. 
+[tasks quota](http://code.google.com/appengine/docs/quotas.html#Task_Queue). This applies on both
+serial and parallel pipes' parameters. There is one exception: if the arguments are bigger than allowed limit 
+they are stored in the datastore.
+
 
 Results of parallel pipes are stored into
 the datastore until the last task is finished. Datastore operations are designed to be as minimal as possible but 
