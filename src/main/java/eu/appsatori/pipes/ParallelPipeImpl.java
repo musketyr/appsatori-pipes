@@ -60,7 +60,15 @@ enum ParallelPipeImpl implements ParallelPipe {
 	 * @see eu.appsatori.pipes.Pipe#finish()
 	 */
 	public final NodeResult finish(){
-		return NodeResult.END_RESULT;
+		return SerialPipeImpl.INSTANCE.finish();
+	}
+	
+	public <R, N extends Node<SerialPipe,? super R>> NodeResult fail(java.lang.Class<N> next, R result) {
+		return SerialPipeImpl.INSTANCE.fail(next, result);
+	}
+	
+	public NodeResult fail() {
+		return SerialPipeImpl.INSTANCE.fail();
 	}
 	
 }

@@ -82,7 +82,6 @@ public class PipesServlet extends HttpServlet {
 				return;
 			}
 			Pipes.run((Class)cls, req.getParameter("arg"));
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			resp.getWriter().append("Node '"+ nodeName + "' started");
 		} catch (ClassNotFoundException e) {
 			String msg = "The specified class " + nodeName + " does not exist!";

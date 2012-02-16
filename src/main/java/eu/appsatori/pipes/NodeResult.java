@@ -24,6 +24,7 @@ package eu.appsatori.pipes;
 public class NodeResult {
 	
 	static final NodeResult END_RESULT = new NodeResult(PipeType.SERIAL, null, null);
+	static final NodeResult RESULT_FAILING = new NodeResult(PipeType.FAIL_HANDLER, null, null);
 	
 	private final Object result;
 	private final Class<? extends Node<?,?>> next;

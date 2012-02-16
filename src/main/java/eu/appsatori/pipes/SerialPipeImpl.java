@@ -69,4 +69,15 @@ enum SerialPipeImpl implements Pipe, SerialPipe{
 		return NodeResult.END_RESULT;
 	}
 	
+	/* (non-Javadoc)
+	 * @see eu.appsatori.pipes.Pipe#fail(java.lang.Class, java.lang.Object)
+	 */
+	public <R, N extends Node<SerialPipe,? super R>> NodeResult fail(java.lang.Class<N> next, R result) {
+		return NodeResult.create(PipeType.FAIL_HANDLER, next, result);
+	}
+	
+	public NodeResult fail() {
+		return NodeResult.RESULT_FAILING;
+	}
+	
 }

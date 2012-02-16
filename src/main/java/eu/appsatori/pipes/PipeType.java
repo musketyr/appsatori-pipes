@@ -75,6 +75,20 @@ enum PipeType {
 			Pipes.start(result.getType(), result.getNext(), result.getResult());
 		}
 
+	},
+	FAIL_HANDLER {
+		@Override
+		public void handlePipeEnd(String queue, String baseTaskId, int index, Object result) {
+			COMPETETIVE.handlePipeEnd(queue, baseTaskId, index, result);
+		}
+		
+		public <P extends Pipe, A, N extends Node<P,A>> NodeResult execute(N taskInstance, Object arg, int index) {
+			return SERIAL.execute(taskInstance, arg, index);
+		};
+		
+		public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
+			COMPETETIVE.handleNext(queue, baseTaskId, index, result);
+		}
 	};
 	
 	public int getParallelTasksCount(Object arg) {

@@ -28,4 +28,18 @@ public interface Pipe {
 	 */
 	NodeResult finish();
 	
+	/**
+	 * Fails the execution of current node without proceeding to any other node.
+	 * @return {@link NodeResult} representing the end of this pipe due the failure
+	 */
+	NodeResult fail();
+	
+	/**
+	 * Fails the execution of current node without proceeding to any other node.
+	 * @param next the failure handler
+	 * @param result the additional information about the failure
+	 * @return {@link NodeResult} representing the end of this pipe due the failure
+	 */
+	<R, N extends Node<SerialPipe, ? super R>> NodeResult fail(Class<N> next, R result);
+	
 }
