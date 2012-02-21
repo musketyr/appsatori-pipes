@@ -58,6 +58,25 @@ public class Pipes {
 	}
 	
 	/**
+	 * Runs the selected node in streaming mode.
+	 * 
+	 * @param node class of the node to be run in streaming mode
+	 */
+	public static <R, N extends Node<StreamingPipe, ? super R>> void stream(Class<N> node){
+		stream(node, null);
+	}
+	
+	
+	/**
+	 * Runs the selected node with given parameter in streaming mode.
+	 * @param node class of the node to be run in streaming mode
+	 * @param parameter	parameter for the node
+	 */
+	public static <R, N extends Node<StreamingPipe, ? super R>> void stream(Class<N> node, R parameter){
+		start(PipeType.STREAMING, node, parameter);
+	}
+	
+	/**
 	 * For each element of <code>parameters</code> argument runs one node in parallel.
 	 * The pipe will be collecting results of the executions so it could be send to one of the following
 	 * nodes using the {@link ParallelPipe#join(Class, Object)} method. 

@@ -105,6 +105,7 @@ class NodeTaskSpec extends Specification {
 		executor.run()
 		
 		then:
+		1 * fds.haveAllTasksStarted(_) >> true
 		1 * fds.isActive('taskid') >> true
 		1 * fds.logTaskFinished('taskid', 0, _) >> 0
 		1 * fds.getTaskResults('taskid')

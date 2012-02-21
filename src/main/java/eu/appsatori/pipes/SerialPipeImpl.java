@@ -80,4 +80,12 @@ enum SerialPipeImpl implements Pipe, SerialPipe{
 		return NodeResult.RESULT_FAILING;
 	}
 	
+	public <R, N extends Node<StreamingPipe, R>> NodeResult stream(Class<N> next) {
+		return NodeResult.create(PipeType.STREAMING, next);
+	}
+	
+	public <R, N extends Node<StreamingPipe,? super R>> NodeResult stream(Class<N> next, R result) {
+		return NodeResult.create(PipeType.STREAMING, next, result);
+	}
+	
 }

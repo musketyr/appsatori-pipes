@@ -39,15 +39,6 @@ public interface SerialPipe extends Pipe {
 	<R, N extends Node<SerialPipe, R>> NodeResult run(Class<N> next);
 
 	/**
-	 * Sends the results to the next node which will be executed independently (in serial manner).
-	 * The next node must use {@link SerialPipe} because it will obtain the argument directly.
-	 * @param next type of the next node
-	 * @param result argument for the next node
-	 * @return {@link NodeResult} signaling that following nodes should be run independently
-	 */
-	<E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> NodeResult spread(Class<N> next, R result);
-
-	/**
 	 * Sends the result directly to the next node which will be run in serial.
 	 * The next node must use {@link SerialPipe} because it will obtain the argument directly.
 	 * @param next the next node to be run in serial
@@ -56,6 +47,33 @@ public interface SerialPipe extends Pipe {
 	 */
 	<R, N extends Node<SerialPipe, ? super R>> NodeResult run(Class<N> next,
 			R result);
+	
+
+	/**
+	 * Runs the next node in stream.
+	 * @param next type of the next node to be run in stream
+	 * @return {@link NodeResult} signaling that next node should be executed in stream
+	 */
+	<R, N extends Node<StreamingPipe, R>> NodeResult stream(Class<N> next);
+
+	/**
+	 * Sends the result directly to the next node which will be run in stream.
+	 * The next node must use {@link StreamingPipe} to be able to start tasks as soon as possible.
+	 * @param next the next node to be run in stream
+	 * @param result argument for the next node
+	 * @return {@link NodeResult} signaling that next node should be executed in stream
+	 */
+	<R, N extends Node<StreamingPipe, ? super R>> NodeResult stream(Class<N> next,	R result);
+
+	/**
+	 * Sends the results to the next node which will be executed independently (in serial manner).
+	 * The next node must use {@link SerialPipe} because it will obtain the argument directly.
+	 * @param next type of the next node
+	 * @param result argument for the next node
+	 * @return {@link NodeResult} signaling that following nodes should be run independently
+	 */
+	<E, R extends Collection<E>, N extends Node<SerialPipe, ? super E>> NodeResult spread(Class<N> next, R result);
+
 
 	/**
 	 * Distribute the results to the next tasks. 
