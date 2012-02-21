@@ -20,11 +20,6 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.taskqueue.RetryOptions;
-import com.google.appengine.api.taskqueue.TaskOptions;
-
 
 /**
  * Facade class to the AppSatori Pipes framework.
@@ -37,15 +32,10 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 public class Pipes {
 	
 	private static final Random RANDOM = new Random();
-
-	private static final Pattern TASK_NAME_PATTERN = Pattern.compile("[^0-9a-zA-Z\\-\\_]");  
-
-	private static PipeDatastore pipeDatastore;
+	private static final Pattern TASK_NAME_PATTERN = Pattern.compile("[^0-9a-zA-Z\\-\\_]");
 	
-	static {
-		resetDatastores();
-	}
-	
+	private static NodeRunner runner = new AppEngineNodeRunner();
+
 	private Pipes() { }
 	
 	/**
@@ -103,70 +93,24 @@ public class Pipes {
 	
 	
 	static String start(PipeType type, Class<? extends Node<?,?>> node){
-		return start(type, node, null);
+		return runner.run(type, node, null);
 	}
 	
 	static <N extends Node<?,?>> String start(PipeType type, Class<? extends Node<?,?>> node, Object arg){
-		String taskId = getUniqueTaskId(node.getName());
-		Queue q = getQueue(node);
-		int total = type.getParallelTasksCount(arg);
-		pipeDatastore.logTaskStarted(taskId, total);
-		for (int i = 0; i < total; i++) {
-			startTask(q, type, node, arg, taskId, i);
-		}
-		return taskId;
-	}
-
-
-	static PipeDatastore getPipeDatastore() {
-		return pipeDatastore;
-	}
-
-
-	static void setPipeDatastore(PipeDatastore pipeDatastore) {
-		if(pipeDatastore == null){
-			throw new NullPointerException("Pipes datastore cannot be null");
-		}
-		Pipes.pipeDatastore = pipeDatastore;
-	}
-
-
-	
-	static void resetDatastores(){
-		pipeDatastore = new DatastorePipeDatastore();
+		return runner.run(type, node, arg);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void startTask(Queue q, PipeType type, Class node, Object arg, String taskId, int index) {
-		NodeTask nodeTask = new NodeTask(type, node, taskId, index, arg);
-		TaskOptions options = TaskOptions.Builder.withTaskName(index + "_" + taskId).payload(nodeTask).retryOptions(RetryOptions.Builder.withTaskRetryLimit(0));
-		try {
-			q.add(options);
-		} catch (IllegalStateException e){
-			if(!QueueFactory.getDefaultQueue().equals(q)){
-				startTask(QueueFactory.getDefaultQueue(), type, node, arg, taskId, index);
-			} else {
-				throw e;
-			}
-		} catch (IllegalArgumentException e){
-			if(e.getMessage().startsWith("Task size too large") && !(arg instanceof StashedArgument)){
-				startTask(q, type, node, new StashedArgument(pipeDatastore.stashArgument(arg)), taskId, index);
-			} else {
-				throw e;
-			}
-		}
+	static NodeRunner getRunner() {
+		return runner;
 	}
-
-	static <N extends Node<?,?>> Queue getQueue(Class<? extends Node<?,?>> node) {
-		String name = getQueueName(node);
-		
-		Queue q = QueueFactory.getDefaultQueue();
-		if(!"".equals(name)){
-			q = QueueFactory.getQueue(name);
+	
+	static void setRunner(NodeRunner runner) {
+		if(runner == null){
+			throw new IllegalArgumentException("Runner cannot be null!");
 		}
-		return q;
+		Pipes.runner = runner;
 	}
-
+	
 	static String getQueueName(Class<? extends Node<?,?>> node) {
 		String name = "";
 		
@@ -177,11 +121,8 @@ public class Pipes {
 	}
 	
 	
-	private static String getUniqueTaskId(String from){
+	public static String getUniqueTaskId(String from){
 		return TASK_NAME_PATTERN.matcher(from + "_" + RANDOM.nextInt(1000) + "_" + System.currentTimeMillis()).replaceAll("_");
 	}
-	
-	
-	
 	
 }

@@ -44,12 +44,12 @@ enum PipeType {
 		}
 		
 		public void handlePipeEnd(String queue, String baseTaskId, int index, Object result){
-			Pipes.getPipeDatastore().clearTaskLog(baseTaskId, true);
+			Pipes.getRunner().getPipeDatastore().clearTaskLog(baseTaskId, true);
 		}
 
 		public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
 			Pipes.start(result.getType(), result.getNext(), result.getResult());
-			Pipes.getPipeDatastore().clearTaskLog(baseTaskId, true);
+			Pipes.getRunner().getPipeDatastore().clearTaskLog(baseTaskId, true);
 		}
 	}, 
 	PARALLEL,
@@ -61,9 +61,9 @@ enum PipeType {
 		
 		public void handlePipeEnd(String queue, String baseTaskId, int index, Object result) {
 			try {
-				Pipes.getPipeDatastore().setActive(baseTaskId, false);
-				clean(queue, baseTaskId, Pipes.getPipeDatastore().getParallelTaskCount(baseTaskId));
-				Pipes.getPipeDatastore().clearTaskLog(baseTaskId, true);
+				Pipes.getRunner().getPipeDatastore().setActive(baseTaskId, false);
+				clean(queue, baseTaskId, Pipes.getRunner().getPipeDatastore().getParallelTaskCount(baseTaskId));
+				Pipes.getRunner().getPipeDatastore().clearTaskLog(baseTaskId, true);
 			} catch(IllegalArgumentException e){
 				// already deleted
 			}
@@ -101,14 +101,14 @@ enum PipeType {
 	}
 	
 	public void handlePipeEnd(String queue, String baseTaskId, int index, Object result) {
-		PipeDatastore pds = Pipes.getPipeDatastore();
+		PipeDatastore pds = Pipes.getRunner().getPipeDatastore();
 		if(0 == pds.logTaskFinished(baseTaskId, index, result)){
 			pds.clearTaskLog(baseTaskId, true);
 		}
 	}
 	
 	public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
-		PipeDatastore fds = Pipes.getPipeDatastore();
+		PipeDatastore fds = Pipes.getRunner().getPipeDatastore();
 		int remaining = fds.logTaskFinished(baseTaskId, index, result.getResult());
 		if(remaining > 0){
 			return;

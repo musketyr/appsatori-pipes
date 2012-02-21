@@ -52,7 +52,7 @@ class PipesSpec extends Specification {
 	}
 	
 	def setup(){
-		Pipes.setPipeDatastore(fds)
+		Pipes.setRunner(new AppEngineNodeRunner(fds))
 		helper.setUp()
 	}
 	

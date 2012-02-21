@@ -47,7 +47,7 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 	}
 
 	public void run() {
-		if(!Pipes.getPipeDatastore().isActive(baseTaskId)){
+		if(!Pipes.getRunner().getPipeDatastore().isActive(baseTaskId)){
 			return;
 		}
 		NodeResult result = NodeResult.END_RESULT;
@@ -83,7 +83,7 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 	public NodeResult execute(){
 		Object a = arg;
 		if(arg instanceof StashedArgument){
-			a = Pipes.getPipeDatastore().retrieveArgument(((StashedArgument)arg).getKey());
+			a = Pipes.getRunner().getPipeDatastore().retrieveArgument(((StashedArgument)arg).getKey());
 		}
 		return type.execute(createTaskInstance(), a, index);
 	}

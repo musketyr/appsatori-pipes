@@ -36,7 +36,7 @@ class NodeTaskSpec extends Specification {
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
 	
 	def setup(){
-		Pipes.pipeDatastore = fds;
+		Pipes.setRunner(new AppEngineNodeRunner(fds))
 		helper.setUp();
 	}
 	
