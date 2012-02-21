@@ -17,13 +17,8 @@
 package eu.appsatori.pipes;
 
 
-/**
- * Internal abstaction of type running particular nodes.
- * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
- */
-interface NodeRunner {
-	<N extends Node<?,?>> String run(PipeType type, Class<N> node, Object arg);
-	<N extends Node<?,?>> int run(String taskId, PipeType type, Class<N> node, Object arg);
-	PipeDatastore getPipeDatastore();
-	void clearTasks(String queue, String baseTaskId, int tasksCount);
+public interface StreamingPipe extends Pipe {
+
+	<A, N extends Node<ParallelPipe, ? super A>> void send(Class<N> part, A param);
+
 }

@@ -42,7 +42,7 @@ class DatastorePipeDatastoreSpec extends PipeDatastoreSpec {
 		0		== ds.getActiveTransactions().size()
 		
 		when:
-		pds.logTaskStarted('taskid', count)
+		count.times { pds.logTaskStarted('taskid') }
 		NamespaceManager.set(DatastoreHelper.FLOW_NAMESPACE)
 		PreparedQuery taskQuery = ds.prepare(new Query(DatastoreHelper.TASK_KIND))
 		PreparedQuery subtaskQuery = ds.prepare(new Query(DatastoreHelper.SUBTASK_KIND))
@@ -59,7 +59,7 @@ class DatastorePipeDatastoreSpec extends PipeDatastoreSpec {
 		then:
 		'taskid' 	== taskEntity.getKey().getName()
 		count		== taskEntity.getProperty(DatastorePipeDatastore.TOTAL_COUNT)
-		null 		== taskEntity.getProperty(DatastorePipeDatastore.COUNT)
+		count		== taskEntity.getProperty(DatastorePipeDatastore.COUNT)
 		1 			== firstSubtask.getKey().getId()
 		taskEntity.getKey() == firstSubtask.getKey().getParent()
 		null 		== firstSubtask.getProperty(DatastorePipeDatastore.FINISHED)

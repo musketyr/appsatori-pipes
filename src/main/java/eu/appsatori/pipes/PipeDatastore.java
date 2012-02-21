@@ -56,10 +56,17 @@ interface PipeDatastore {
 	/**
 	 * Logs the start of the task execution.
 	 * @param taskId base id of the started task (e.g. without index suffix)
-	 * @param parallelTaskCount number of the tasks running in parallel
-	 * @return <code>true</code> if the task with the same id hasn't been already logged
+	 * @return zero based index of current task added
 	 */
-	boolean logTaskStarted(String taskId, int parallelTaskCount);
+	int logTaskStarted(String taskId);
+	
+	
+	/**
+	 * Logs that all the tasks has started.
+	 * @param taskId base id of the started task (e.g. without index suffix)
+	 * @return total count of task added
+	 */
+	int logAllTasksStarted(String taskId);
 	
 	/**
 	 * Logs the finish of the task execution with optional results.
@@ -107,5 +114,12 @@ interface PipeDatastore {
 	 * @return <code>true</code> if there was task of given name and has been cleared successfully
 	 */
 	boolean clearTaskLog(String taskId, boolean force);
+
+	/**
+	 * Checks whether all the tasks has already started.
+	 * @param baseTaskId  base id of the task (e.g. without index suffix)
+	 * @return <code>true</code> if {@link #logAllTasksStarted(String)} was already called for particular id
+	 */
+	boolean haveAllTasksStarted(String baseTaskId);
 
 }

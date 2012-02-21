@@ -92,6 +92,16 @@ enum PipeType {
 		public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
 			COMPETETIVE.handleNext(runner, queue, baseTaskId, index, result);
 		}
+	}, STREAMING{
+		@Override
+		public int getParallelTasksCount(Object arg) {
+			return SERIAL.getParallelTasksCount(arg);
+		}
+		
+		@SuppressWarnings("unchecked")
+		public <P extends Pipe, A, N extends Node<P,A>> NodeResult execute(N taskInstance, Object arg, int index) {
+			return taskInstance.execute((P)new StreamingPipeImpl(Pipes.getUniqueTaskId(taskInstance.getClass().getName())), (A)arg);
+		}
 	};
 	
 	public int getParallelTasksCount(Object arg) {

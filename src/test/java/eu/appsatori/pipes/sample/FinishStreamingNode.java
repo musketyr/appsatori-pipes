@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes;
+package eu.appsatori.pipes.sample;
+
+import java.util.Collection;
+import java.util.logging.Logger;
+
+import eu.appsatori.pipes.Node;
+import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.SerialPipe;
 
 
-/**
- * Internal abstaction of type running particular nodes.
- * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
- */
-interface NodeRunner {
-	<N extends Node<?,?>> String run(PipeType type, Class<N> node, Object arg);
-	<N extends Node<?,?>> int run(String taskId, PipeType type, Class<N> node, Object arg);
-	PipeDatastore getPipeDatastore();
-	void clearTasks(String queue, String baseTaskId, int tasksCount);
+public class FinishStreamingNode implements Node<SerialPipe, Collection<Integer>> {
+	
+	private static final Logger log = Logger.getLogger(StartStreamingNode.class.getName());
+	
+	public NodeResult execute(SerialPipe pipe, Collection<Integer> param){
+		log.info("Streaming finished with parameter: " + param);
+		return pipe.finish();
+	}
+	
 }

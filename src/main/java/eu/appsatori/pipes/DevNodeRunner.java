@@ -38,7 +38,7 @@ class DevNodeRunner implements NodeRunner {
 	}
 
 	private final class DevRunnerRunnable implements Runnable {
-		
+
 		private final ApiProxy.Environment env = ApiProxy
 				.getCurrentEnvironment();
 		private final NodeTask<?, ?, ?> delegate;
@@ -51,14 +51,12 @@ class DevNodeRunner implements NodeRunner {
 		}
 
 		public void run() {
-			synchronized (clearedTasks) {
-				if (clearedTasks.contains(delegate.getBaseTaskId())) {
-					return;
-				}
+			if (clearedTasks.contains(delegate.getBaseTaskId())) {
+				return;
 			}
 			ApiProxy.setEnvironmentForCurrentThread(env);
 			delegate.run();
-			if(delegate.isExecuted()){
+			if (delegate.isExecuted()) {
 				for (ExecutionListener el : executionListeners) {
 					try {
 						el.taskExecuted(delegate);
@@ -91,24 +89,23 @@ class DevNodeRunner implements NodeRunner {
 		this(new DevPipeDatastore(), Executors.newFixedThreadPool(1));
 	}
 
-	public <N extends Node<?, ?>> String run(PipeType type,
-			Class<? extends Node<?, ?>> node, Object arg) {
+	public <N extends Node<?, ?>> String run(PipeType type, Class<N> node, Object arg) {
 		String taskId = Pipes.getUniqueTaskId(node.getName());
 		int total = type.getParallelTasksCount(arg);
-		if(pipeDatastore.logTaskStarted(taskId, total)){
-			for (int i = 0; i < total; i++) {
-				startTask(type, node, arg, taskId, i);
-			}
+		for (int i = 0; i < total; i++) {
+			run(taskId, type, node, arg);
 		}
+		pipeDatastore.logAllTasksStarted(taskId);
 		return taskId;
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void startTask(PipeType type, Class node, Object arg,
-			String taskId, int index) {
+	public int run(String taskId, PipeType type, Class node, Object arg) {
+		int index = pipeDatastore.logTaskStarted(taskId); 
 		@SuppressWarnings("unchecked")
 		NodeTask nodeTask = new NodeTask(type, node, taskId, index, arg);
 		executorService.execute(new DevRunnerRunnable(nodeTask));
+		return index;
 	}
 
 	public PipeDatastore getPipeDatastore() {
@@ -116,16 +113,14 @@ class DevNodeRunner implements NodeRunner {
 	}
 
 	public void clearTasks(String queue, String baseTaskId, int tasksCount) {
-		synchronized (clearedTasks) {
-			clearedTasks.add(baseTaskId);
-		}
+		clearedTasks.add(baseTaskId);
 	}
-	
-	public void addExecutionListener(ExecutionListener el){
+
+	public void addExecutionListener(ExecutionListener el) {
 		executionListeners.add(el);
 	}
-	
-	public void removeExecutionListener(ExecutionListener el){
+
+	public void removeExecutionListener(ExecutionListener el) {
 		executionListeners.remove(el);
 	}
 

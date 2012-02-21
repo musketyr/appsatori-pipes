@@ -35,29 +35,30 @@ import spock.lang.Ignore;
 import spock.lang.Specification
 
 
-class DevNodeRunnerSpec extends Specification {
+class DevNodeRunnerStreamingSpec extends Specification {
 	
 	
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig(),new LocalBlobstoreServiceTestConfig(), new LocalFileServiceTestConfig())
 	DevNodeRunner runner = new DevNodeRunner()
-
 	
-	def "Execute start node"(){
-		AtomicInteger winTaskCount = new AtomicInteger(0)
+	def "Try streaming node"(){
+		Object finishStreamingNodeArg = null;
 		runner.addExecutionListener(new ExecutionListener(){
 			void taskExecuted(NodeTask task) {
 				println task
-				if(task.node == WinNode){
-					winTaskCount.incrementAndGet()
+				if(task.node == FinishStreamingNode){
+					finishStreamingNodeArg = task.arg
 				}
 			}
 		});
 		Pipes.runner = runner
-		String id = runner.run(PipeType.SERIAL, StartNode, null)
+		String id = runner.run(PipeType.STREAMING, StartStreamingNode, null)
 		Thread.currentThread().sleep(3000)
 		
 		expect:
-		winTaskCount.intValue() == 1
+		finishStreamingNodeArg
+		finishStreamingNodeArg == [5,5,2,9,5]
+		
 	}
 	
 	def setup(){

@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package eu.appsatori.pipes;
+package eu.appsatori.pipes.sample;
+
+import eu.appsatori.pipes.Node;
+import eu.appsatori.pipes.NodeResult;
+import eu.appsatori.pipes.ParallelPipe;
 
 
-/**
- * Internal abstaction of type running particular nodes.
- * @author <a href="mailto:vladimir.orany@appsatori.eu">Vladimir Orany</a>
- */
-interface NodeRunner {
-	<N extends Node<?,?>> String run(PipeType type, Class<N> node, Object arg);
-	<N extends Node<?,?>> int run(String taskId, PipeType type, Class<N> node, Object arg);
-	PipeDatastore getPipeDatastore();
-	void clearTasks(String queue, String baseTaskId, int tasksCount);
+public class StreamedNode implements Node<ParallelPipe, String> {
+	
+	public NodeResult execute(ParallelPipe pipe, String param){
+		if(param == null){
+			return pipe.join(FinishStreamingNode.class, 0);
+		}
+		return pipe.join(FinishStreamingNode.class, param.length());
+	}
+	
 }

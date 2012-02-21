@@ -3,22 +3,23 @@ package eu.appsatori.pipes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 class DevPipeDatastore implements PipeDatastore {
 	
 	private static class TaskMetadata {
+		AtomicBoolean allTaskStarted;
 		AtomicBoolean active;
 		AtomicInteger totalCount;
-		AtomicReferenceArray<Object> results;
+		Map<Integer, Object> results;
 		AtomicInteger count;
-		AtomicIntegerArray finished;
+		Map<Integer, Boolean> finished;
 	}
 	
 	private static final Random RANDOM = new Random();
@@ -40,7 +41,6 @@ class DevPipeDatastore implements PipeDatastore {
 	}
 
 	public boolean isActive(String taskId) {
-		System.out.println("Is active " + taskId);
 		TaskMetadata task = tasks.get(taskId);
 		if(task == null){
 			return false;
@@ -49,7 +49,6 @@ class DevPipeDatastore implements PipeDatastore {
 	}
 
 	public boolean setActive(String taskId, boolean active) {
-		System.out.println("Set active ("+ active + ")  " + taskId);
 		TaskMetadata task = null;
 		task = tasks.get(taskId);
 		if(task == null){
@@ -59,18 +58,44 @@ class DevPipeDatastore implements PipeDatastore {
 		return true;
 	}
 
-	public boolean logTaskStarted(String taskId, int parallelTaskCount) {
+	public int logTaskStarted(String taskId) {
 		TaskMetadata task = tasks.get(taskId);
 		if(task != null){
-			return false;
+			if(task.allTaskStarted.get()){
+				throw new IllegalStateException("No more tasks expected!");
+			}
+			int current = task.totalCount.incrementAndGet();
+			task.count.incrementAndGet();
+			return current -1;
 		}
 		task = new TaskMetadata();
 		task.active = new AtomicBoolean(true);
-		task.totalCount = new AtomicInteger(parallelTaskCount);
-		task.count = new AtomicInteger(parallelTaskCount);
-		task.results = new AtomicReferenceArray<Object>(parallelTaskCount);
-		task.finished = new AtomicIntegerArray(parallelTaskCount);
-		return tasks.putIfAbsent(taskId, task) == null;
+		task.totalCount = new AtomicInteger(1);
+		task.count = new AtomicInteger(1);
+		task.results = new TreeMap<Integer, Object>();
+		task.finished = new TreeMap<Integer, Boolean>();
+		task.allTaskStarted = new AtomicBoolean();
+		tasks.putIfAbsent(taskId, task);
+		return 0;
+	}
+	
+	
+	
+	public int logAllTasksStarted(String taskId) {
+		TaskMetadata task = tasks.get(taskId);
+		if(task == null){
+			throw new IllegalArgumentException("Task " + taskId + " doesn't exist!");
+		}
+		task.allTaskStarted.set(true);
+		return task.totalCount.get();
+	}
+	
+	public boolean haveAllTasksStarted(String taskId) {
+		TaskMetadata task = tasks.get(taskId);
+		if(task == null){
+			throw new IllegalArgumentException("Task " + taskId + " doesn't exist!");
+		}
+		return task.allTaskStarted.get();
 	}
 
 	public int logTaskFinished(String taskId, int index, Object results) {
@@ -78,12 +103,15 @@ class DevPipeDatastore implements PipeDatastore {
 		if(task == null){
 			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!");
 		}
-		if(task.finished.get(index) != 0){
+		if(index >= task.totalCount.get()){
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		if(Boolean.TRUE.equals(task.finished.get(index))){
 			throw new IllegalStateException("Node with index " + index + " has already finished!");
 		}
 		int count = task.count.decrementAndGet();
-		task.results.set(index, results);
-		task.finished.set(index, 1);
+		task.results.put(index, results);
+		task.finished.put(index, Boolean.TRUE);
 		if(count == 0){
 			task.active.set(false);
 		}
@@ -92,9 +120,12 @@ class DevPipeDatastore implements PipeDatastore {
 
 	public List<Object> getTaskResults(String taskId) {
 		TaskMetadata task = tasks.get(taskId);
-			if(task == null){
-				throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!");
-			}
+		if(task == null){
+			throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!");
+		}
+		if(!task.allTaskStarted.get()){
+			throw new IllegalStateException("All tasks haven't started yet!");
+		}
 		if(task.count.get() != 0){
 			throw new IllegalStateException("All tasks haven't finished yet!");
 		}

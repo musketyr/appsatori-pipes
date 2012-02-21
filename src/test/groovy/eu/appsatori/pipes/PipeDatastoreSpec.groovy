@@ -31,7 +31,8 @@ abstract class PipeDatastoreSpec extends Specification{
 		MySerializable myser = new MySerializable("Hello")
 		
 		expect:
-		pds.logTaskStarted(ptid, parallelTasksCount)
+		0 == pds.logTaskStarted(ptid)
+		pds.logAllTasksStarted(ptid)
 		0 == pds.logTaskFinished(ptid, 0, myser)
 		myser.text == pds.getTaskResults(ptid)[0].text
 	}
@@ -43,7 +44,8 @@ abstract class PipeDatastoreSpec extends Specification{
 		int parallelTasksCount = 1
 		
 		expect:
-		pds.logTaskStarted(ptid, parallelTasksCount)
+		0 == pds.logTaskStarted(ptid)
+		pds.logAllTasksStarted(ptid)
 		0 == pds.logTaskFinished(ptid, 0, literal)
 		cls == pds.getTaskResults(ptid)[0].getClass()
 		where:
@@ -65,9 +67,19 @@ abstract class PipeDatastoreSpec extends Specification{
 		int parallelTasksCount = 3
 		
 		expect:
-		true == pds.logTaskStarted(ptid, parallelTasksCount)
-		false == pds.logTaskStarted(ptid, parallelTasksCount)
+		0 == pds.logTaskStarted(ptid)
+		1 == pds.logTaskStarted(ptid)
+		2 == pds.logTaskStarted(ptid)
+		!pds.haveAllTasksStarted(ptid)
 		3 == pds.getParallelTaskCount(ptid)
+		
+		when:
+		3 == pds.logAllTasksStarted(ptid)
+		pds.haveAllTasksStarted(ptid)
+		pds.logTaskStarted(ptid)
+		
+		then:
+		thrown(IllegalStateException)
 		
 		when:
 		pds.getTaskResults(ptid)

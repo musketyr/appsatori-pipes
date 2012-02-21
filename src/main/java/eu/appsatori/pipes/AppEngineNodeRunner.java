@@ -44,16 +44,22 @@ class AppEngineNodeRunner implements NodeRunner {
 		return pipeDatastore;
 	}
 
-	public <N extends Node<?, ?>> String run(PipeType type, Class<? extends Node<?, ?>> node, Object arg) {
+	public <N extends Node<?, ?>> String run(PipeType type, Class<N> node, Object arg) {
 		String taskId = Pipes.getUniqueTaskId(node.getName());
-		Queue q = getQueue(node);
+		
 		int total = type.getParallelTasksCount(arg);
-		if(pipeDatastore.logTaskStarted(taskId, total)){
-			for (int i = 0; i < total; i++) {
-				startTask(q, type, node, arg, taskId, i);
-			}
+		for (int i = 0; i < total; i++) {
+			run(taskId, type, node, arg);
 		}
+		pipeDatastore.logAllTasksStarted(taskId);
 		return taskId;
+	}
+	
+	public <N extends Node<?, ?>> int run(String taskId, PipeType type, Class<N> node, Object arg) {
+		int index = pipeDatastore.logTaskStarted(taskId);
+		Queue q = getQueue(node);
+		startTask(q, type, node, arg, taskId, index);
+		return index;
 	}
 
 

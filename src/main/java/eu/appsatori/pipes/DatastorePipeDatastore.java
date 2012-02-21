@@ -61,12 +61,12 @@ class DatastorePipeDatastore implements PipeDatastore {
 	
 	private static final String STASHED_ARG_MIME_TYPE = "application/x-appsatori-stashed-argument";
 	private static final String FINISHED = "finished";
-	private static final Long ZERO = Long.valueOf(0);
 	private static final String RESULT = "result";
 	private static final String ACTIVE = "active";
 	private static final String COUNT = "count";
 	private static final String TOTAL_COUNT = "total_count";
 	private static final String SERIALIZED = "serialized";
+	private static final String ALL_TASKS_STARTED = "all_started";
 	private static final String NUMERIC_TYPE = "numeric";
 	private static final int FLOAT = 0;
 	private static final int SHORT = 1;
@@ -207,21 +207,66 @@ class DatastorePipeDatastore implements PipeDatastore {
 		}, Boolean.FALSE);
 	}
 
-	public boolean logTaskStarted(final String taskId, final int taskCount) {
+	public int logTaskStarted(final String taskId) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Integer>(){
+			public Integer run(DatastoreService ds) {
+				try {
+					Key taskKey = DatastoreHelper.getKey(taskId);
+					Entity task = ds.get(taskKey);
+					if(Boolean.TRUE.equals(task.getProperty(ALL_TASKS_STARTED))){
+						throw new IllegalStateException("No more tasks expected!");
+					}
+					
+					long total = getLong(task, TOTAL_COUNT) + 1;
+					task.setUnindexedProperty(TOTAL_COUNT, total);
+					task.setUnindexedProperty(COUNT, getLong(task, COUNT) + 1);
+					ds.put(task);
+					Entity subtask = new Entity(taskKey.getChild(DatastoreHelper.SUBTASK_KIND, total));
+					ds.put(subtask);
+					return (int) (total - 1);
+				} catch (EntityNotFoundException e){
+					int total = 1;
+					Entity task = new Entity(DatastoreHelper.TASK_KIND, taskId);
+					task.setUnindexedProperty(TOTAL_COUNT, (long) total);
+					task.setUnindexedProperty(COUNT, (long) total);
+					Key taskKey = ds.put(task);
+					Entity subtask = new Entity(taskKey.getChild(DatastoreHelper.SUBTASK_KIND, total));
+					ds.put(subtask);
+					return 0;
+				}
+			}
+		}, 0);
+	}
+	
+	public int logAllTasksStarted(final String taskId) {
+		return DatastoreHelper.call(new DatastoreHelper.Operation<Integer>(){
+			public Integer run(DatastoreService ds) {
+				try {
+					Key taskKey = DatastoreHelper.getKey(taskId);
+					Entity task = ds.get(taskKey);
+					task.setUnindexedProperty(ALL_TASKS_STARTED, Boolean.TRUE);
+					ds.put(task);
+					return (int) getLong(task, TOTAL_COUNT);
+				} catch (EntityNotFoundException e){
+					throw new IllegalArgumentException("Given task doesn't exist");
+				}
+			}
+		}, 0);
+	}
+	
+	public boolean haveAllTasksStarted(final String taskId) {
 		return DatastoreHelper.call(new DatastoreHelper.Operation<Boolean>(){
 			public Boolean run(DatastoreService ds) {
 				try {
-					ds.get(DatastoreHelper.getKey(taskId));
-					return Boolean.FALSE;
-				} catch (EntityNotFoundException e){
-					Entity task = new Entity(DatastoreHelper.TASK_KIND, taskId);
-					task.setUnindexedProperty(TOTAL_COUNT, (long) taskCount);
-					Key taskKey = ds.put(task);
-					for(int i = 0; i < taskCount; i++){
-						Entity subtask = new Entity(taskKey.getChild(DatastoreHelper.SUBTASK_KIND, i + 1));
-						ds.put(subtask);
+					Key taskKey = DatastoreHelper.getKey(taskId);
+					Entity task = ds.get(taskKey);
+					Boolean allStarted = (Boolean) task.getProperty(ALL_TASKS_STARTED);
+					if(allStarted == null){
+						return Boolean.FALSE;
 					}
-					return Boolean.TRUE;
+					return allStarted;
+				} catch (EntityNotFoundException e){
+					throw new IllegalArgumentException("Given task doesn't exist");
 				}
 			}
 		}, Boolean.FALSE);
@@ -232,10 +277,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 			public Integer run(DatastoreService ds) {
 				try {
 					Entity task = ds.get(DatastoreHelper.getKey(taskId));
-					Long total = (Long) task.getProperty(TOTAL_COUNT);
-					if(total == null){
-						return 0;
-					}
+					Long total = getLong(task, TOTAL_COUNT);
 					return total.intValue();
 				} catch (EntityNotFoundException e){
 					throw new IllegalArgumentException("Node " + taskId + " hasn't been logged!", e);
@@ -256,12 +298,6 @@ class DatastorePipeDatastore implements PipeDatastore {
 					Long total = (Long) task.getProperty(TOTAL_COUNT);
 					Long count = (Long) task.getProperty(COUNT);
 					
-					if(total == null) {
-						total = Long.valueOf(ZERO);
-					}
-					if(count == null){
-						count = total;
-					}
 					
 					if(index >= total.intValue()){
 						throw new IndexOutOfBoundsException("There are only " + total + " tasks expected ! You requested index " + index);
@@ -344,6 +380,11 @@ class DatastorePipeDatastore implements PipeDatastore {
 			public List<Object> run(DatastoreService ds) {
 				try {
 					Entity task = ds.get(DatastoreHelper.getKey(taskId));
+					Boolean allTaskStarted = (Boolean) task.getProperty(ALL_TASKS_STARTED);
+					if(allTaskStarted == null || !allTaskStarted){
+						throw new IllegalStateException("All tasks haven't started yet!");
+					}
+					
 					Long count = (Long) task.getProperty(COUNT);
 					if(count == null || (count != null && count.intValue() != 0)){
 						throw new IllegalStateException("All tasks haven't finished yet!");
@@ -488,6 +529,14 @@ class DatastorePipeDatastore implements PipeDatastore {
 				}
 			}
 		}, Boolean.FALSE);
+	}
+
+	private long getLong(Entity task, String propName) {
+		Long total = (Long) task.getProperty(propName);
+		if(total == null){
+			return 0;
+		}
+		return total;
 	}
 
 }
