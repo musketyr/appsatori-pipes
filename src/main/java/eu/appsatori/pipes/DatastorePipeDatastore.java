@@ -332,8 +332,7 @@ class DatastorePipeDatastore implements PipeDatastore {
 					} catch (IllegalArgumentException e){
 						throw new IllegalArgumentException("Result type is not supported by this flow datastore!", e);
 					}
-					
-					if(count == null || count.intValue() == 0){
+					if((count == null || count.intValue() == 0) && (Boolean.TRUE.equals(task.getProperty(ALL_TASKS_STARTED)))){
 						return 0;
 					}
 					

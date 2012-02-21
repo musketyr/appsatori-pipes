@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import com.google.apphosting.api.ApiProxy;
 
@@ -32,6 +33,8 @@ import com.google.apphosting.api.ApiProxy;
  * 
  */
 class DevNodeRunner implements NodeRunner {
+	
+	private static final Logger log = Logger.getLogger(DevNodeRunner.class.getName());
 
 	public interface ExecutionListener {
 		public void taskExecuted(NodeTask<?, ?, ?> task);
@@ -52,18 +55,23 @@ class DevNodeRunner implements NodeRunner {
 
 		public void run() {
 			if (clearedTasks.contains(delegate.getBaseTaskId())) {
+				log.info("Skipping " + delegate.getBaseTaskId() + " because was cleared");
 				return;
 			}
 			ApiProxy.setEnvironmentForCurrentThread(env);
-			delegate.run();
-			if (delegate.isExecuted()) {
-				for (ExecutionListener el : executionListeners) {
-					try {
-						el.taskExecuted(delegate);
-					} catch (Exception e) {
-						// do nothing
+			try {
+				delegate.run();
+				if (delegate.isExecuted()) {
+					for (ExecutionListener el : executionListeners) {
+						try {
+							el.taskExecuted(delegate);
+						} catch (Exception e) {
+							// do nothing
+						}
 					}
 				}
+			} catch(Exception e){
+				log.warning(e.getMessage());
 			}
 		}
 
@@ -101,7 +109,7 @@ class DevNodeRunner implements NodeRunner {
 
 	@SuppressWarnings("rawtypes")
 	public int run(String taskId, PipeType type, Class node, Object arg) {
-		int index = pipeDatastore.logTaskStarted(taskId); 
+		int index = pipeDatastore.logTaskStarted(taskId);
 		@SuppressWarnings("unchecked")
 		NodeTask nodeTask = new NodeTask(type, node, taskId, index, arg);
 		executorService.execute(new DevRunnerRunnable(nodeTask));

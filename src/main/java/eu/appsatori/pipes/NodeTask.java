@@ -16,6 +16,8 @@
 
 package eu.appsatori.pipes;
 
+import java.util.logging.Logger;
+
 import com.google.appengine.api.taskqueue.DeferredTask;
 import com.google.appengine.api.taskqueue.DeferredTaskContext;
 
@@ -30,6 +32,8 @@ import com.google.appengine.api.taskqueue.DeferredTaskContext;
  * @param <N> type of the passed node
  */
 class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
+	
+	private static final Logger log = Logger.getLogger(NodeTask.class.getName());
 
 	private static final long serialVersionUID = -3569377001403545004L;
 	private final String baseTaskId;
@@ -56,9 +60,11 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 				a = Pipes.getRunner().getPipeDatastore().retrieveArgument(((StashedArgument)arg).getKey());
 			}
 			if(Pipes.getRunner().getPipeDatastore().isActive(baseTaskId)){
+				log.info("Executing: id=" + baseTaskId + ", index=" + index);
 				result = type.execute(createTaskInstance(), a, index);
 				executed = true;
 			} else {
+				log.info("Skipping due inactivity: id=" + baseTaskId + ", index=" + index);
 				return;
 			}
 		} catch(Throwable th){
@@ -70,6 +76,7 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 			type.handlePipeEnd(Pipes.getRunner(), Pipes.getQueueName(node), baseTaskId, index, result);
 			return;
 		}
+		log.info("Handle Next: id=" + baseTaskId + ", index=" + index + ", result= " + result);
 		type.handleNext(Pipes.getRunner(), Pipes.getQueueName(node), baseTaskId, index, result);
 		
 		if(t != null){

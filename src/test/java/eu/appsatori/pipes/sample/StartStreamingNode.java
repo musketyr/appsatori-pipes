@@ -32,7 +32,7 @@ public class StartStreamingNode implements Node<StreamingPipe, Object> {
 			pipe.send(StreamedNode.class, s);
 			log.info(s + " send to the next node");
 			try {
-				Thread.sleep(500);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

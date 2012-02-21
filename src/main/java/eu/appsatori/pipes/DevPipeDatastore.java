@@ -112,7 +112,7 @@ class DevPipeDatastore implements PipeDatastore {
 		int count = task.count.decrementAndGet();
 		task.results.put(index, results);
 		task.finished.put(index, Boolean.TRUE);
-		if(count == 0){
+		if(count == 0 && task.allTaskStarted.get()){
 			task.active.set(false);
 		}
 		return count;

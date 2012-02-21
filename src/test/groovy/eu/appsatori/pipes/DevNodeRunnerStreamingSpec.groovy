@@ -16,6 +16,7 @@
 
 package eu.appsatori.pipes
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,6 +40,7 @@ class DevNodeRunnerStreamingSpec extends Specification {
 	
 	
 	LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig(),new LocalBlobstoreServiceTestConfig(), new LocalFileServiceTestConfig())
+	//DevNodeRunner runner = new DevNodeRunner(new DevPipeDatastore(), Executors.newFixedThreadPool(10))
 	DevNodeRunner runner = new DevNodeRunner()
 	
 	def "Try streaming node"(){
@@ -53,7 +55,7 @@ class DevNodeRunnerStreamingSpec extends Specification {
 		});
 		Pipes.runner = runner
 		String id = runner.run(PipeType.STREAMING, StartStreamingNode, null)
-		Thread.currentThread().sleep(3000)
+		Thread.currentThread().sleep(5000)
 		
 		expect:
 		finishStreamingNodeArg

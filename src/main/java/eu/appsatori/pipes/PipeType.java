@@ -102,6 +102,15 @@ enum PipeType {
 		public <P extends Pipe, A, N extends Node<P,A>> NodeResult execute(N taskInstance, Object arg, int index) {
 			return taskInstance.execute((P)new StreamingPipeImpl(Pipes.getUniqueTaskId(taskInstance.getClass().getName())), (A)arg);
 		}
+		
+		public boolean handlePipeEnd(NodeRunner runner, String queue, String baseTaskId, int index, Object result){
+			return runner.getPipeDatastore().clearTaskLog(baseTaskId, true);
+		}
+
+		public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
+			runner.run(result.getType(), result.getNext(), result.getResult());
+			runner.getPipeDatastore().clearTaskLog(baseTaskId, true);
+		}
 	};
 	
 	public int getParallelTasksCount(Object arg) {
@@ -124,7 +133,7 @@ enum PipeType {
 	public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
 		PipeDatastore fds = runner.getPipeDatastore();
 		int remaining = fds.logTaskFinished(baseTaskId, index, result.getResult());
-		if(remaining > 0){
+		if(remaining > 0 || !fds.haveAllTasksStarted(baseTaskId)){
 			return;
 		}
 		runner.run(result.getType(), result.getNext(), fds.getTaskResults(baseTaskId));
