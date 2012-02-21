@@ -31,17 +31,12 @@ import eu.appsatori.pipes.sample.SerialNode;
 class NodeTaskSpec extends Specification {
 
 	PipeDatastore fds = Mock()
+	NodeRunner runner = Mock()
 
-	LocalTaskQueueTestConfig config = new LocalTaskQueueTestConfig()
-	LocalServiceTestHelper helper = new LocalServiceTestHelper(config)
 	
 	def setup(){
-		Pipes.setRunner(new AppEngineNodeRunner(fds))
-		helper.setUp();
-	}
-	
-	def cleanup(){
-		helper.tearDown();
+		runner.pipeDatastore >> fds
+		Pipes.setRunner(runner)
 	}
 	
 	def 'Execute serial task'(){
@@ -58,7 +53,7 @@ class NodeTaskSpec extends Specification {
 		
 		then:
 		1 * fds.isActive('taskid') >> true
-		10 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+		1 * runner.run(PipeType.PARALLEL, ParallelNode, _)
 	}
 	
 	def 'Execute cometetive task'(){
@@ -74,8 +69,10 @@ class NodeTaskSpec extends Specification {
 		executor.run()
 		
 		then:
-		1 * fds.isActive('taskid') >> true
-		10 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+		2 * fds.isActive('taskid') >> true
+		1 * fds.setActive(_, _) >> true
+		1 * fds.clearTaskLog(_, _) >> true
+		1 * runner.run(PipeType.PARALLEL, ParallelNode, _)
 	}
 	
 	def 'Execute unfisished parallel task'(){
@@ -112,7 +109,7 @@ class NodeTaskSpec extends Specification {
 		1 * fds.logTaskFinished('taskid', 0, _) >> 0
 		1 * fds.getTaskResults('taskid')
 		1 * fds.clearTaskLog('taskid')
-		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
+		1 * runner.run(PipeType.SERIAL, JoinNode, _)
 	}
 	
 }

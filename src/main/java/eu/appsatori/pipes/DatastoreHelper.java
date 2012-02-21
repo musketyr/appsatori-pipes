@@ -54,7 +54,6 @@ class DatastoreHelper {
 	}
 	
 	static <V> V call(Operation<V> op, V defaultValue, TransactionOptions txops){
-	
 		int attempt = 1;
 		while(attempt <= RETRIES){
 			String oldNs = NamespaceManager.get();

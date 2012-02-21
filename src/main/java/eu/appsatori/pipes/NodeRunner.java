@@ -24,4 +24,5 @@ package eu.appsatori.pipes;
 interface NodeRunner {
 	<N extends Node<?,?>> String run(PipeType type, Class<? extends Node<?,?>> node, Object arg);
 	PipeDatastore getPipeDatastore();
+	void clearTasks(String queue, String baseTaskId, int tasksCount);
 }

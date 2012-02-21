@@ -21,9 +21,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.QueueFactory;
-
 
 
 /**
@@ -43,13 +40,13 @@ enum PipeType {
 			return taskInstance.execute((P)SerialPipeImpl.INSTANCE, (A) arg);
 		}
 		
-		public void handlePipeEnd(String queue, String baseTaskId, int index, Object result){
-			Pipes.getRunner().getPipeDatastore().clearTaskLog(baseTaskId, true);
+		public boolean handlePipeEnd(NodeRunner runner, String queue, String baseTaskId, int index, Object result){
+			return runner.getPipeDatastore().clearTaskLog(baseTaskId, true);
 		}
 
-		public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
-			Pipes.start(result.getType(), result.getNext(), result.getResult());
-			Pipes.getRunner().getPipeDatastore().clearTaskLog(baseTaskId, true);
+		public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
+			runner.run(result.getType(), result.getNext(), result.getResult());
+			runner.getPipeDatastore().clearTaskLog(baseTaskId, true);
 		}
 	}, 
 	PARALLEL,
@@ -59,35 +56,41 @@ enum PipeType {
 			return taskInstance.execute((P)SerialPipeImpl.INSTANCE, (A) getAt(index, arg));
 		}
 		
-		public void handlePipeEnd(String queue, String baseTaskId, int index, Object result) {
+		public boolean handlePipeEnd(NodeRunner runner, String queue, String baseTaskId, int index, Object result) {
 			try {
-				Pipes.getRunner().getPipeDatastore().setActive(baseTaskId, false);
-				clean(queue, baseTaskId, Pipes.getRunner().getPipeDatastore().getParallelTaskCount(baseTaskId));
-				Pipes.getRunner().getPipeDatastore().clearTaskLog(baseTaskId, true);
+				if(!runner.getPipeDatastore().isActive(baseTaskId)){
+					return false;
+				}
+				if(!runner.getPipeDatastore().setActive(baseTaskId, false)){
+					return false;
+				}
+				runner.clearTasks(queue, baseTaskId, runner.getPipeDatastore().getParallelTaskCount(baseTaskId));
+				return runner.getPipeDatastore().clearTaskLog(baseTaskId, true);
 			} catch(IllegalArgumentException e){
-				// already deleted
+				return false;
 			}
 			
 		}
 		
-		public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
-			handlePipeEnd(queue, baseTaskId, index, result);
-			Pipes.start(result.getType(), result.getNext(), result.getResult());
+		public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
+			if(handlePipeEnd(runner, queue, baseTaskId, index, result)){
+				runner.run(result.getType(), result.getNext(), result.getResult());
+			}
 		}
 
 	},
 	FAIL_HANDLER {
 		@Override
-		public void handlePipeEnd(String queue, String baseTaskId, int index, Object result) {
-			COMPETETIVE.handlePipeEnd(queue, baseTaskId, index, result);
+		public boolean handlePipeEnd(NodeRunner runner, String queue, String baseTaskId, int index, Object result) {
+			return COMPETETIVE.handlePipeEnd(runner, queue, baseTaskId, index, result);
 		}
 		
 		public <P extends Pipe, A, N extends Node<P,A>> NodeResult execute(N taskInstance, Object arg, int index) {
 			return SERIAL.execute(taskInstance, arg, index);
 		};
 		
-		public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
-			COMPETETIVE.handleNext(queue, baseTaskId, index, result);
+		public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
+			COMPETETIVE.handleNext(runner, queue, baseTaskId, index, result);
 		}
 	};
 	
@@ -100,24 +103,25 @@ enum PipeType {
 		return taskInstance.execute((P)ParallelPipeImpl.INSTANCE, (A) getAt(index, arg));
 	}
 	
-	public void handlePipeEnd(String queue, String baseTaskId, int index, Object result) {
-		PipeDatastore pds = Pipes.getRunner().getPipeDatastore();
+	public boolean handlePipeEnd(NodeRunner runner, String queue, String baseTaskId, int index, Object result) {
+		PipeDatastore pds = runner.getPipeDatastore();
 		if(0 == pds.logTaskFinished(baseTaskId, index, result)){
-			pds.clearTaskLog(baseTaskId, true);
+			return pds.clearTaskLog(baseTaskId, true);
 		}
+		return true;
 	}
 	
-	public <N extends Node<?,?>> void handleNext(String queue, String baseTaskId, int index, NodeResult result) {
-		PipeDatastore fds = Pipes.getRunner().getPipeDatastore();
+	public <N extends Node<?,?>> void handleNext(NodeRunner runner, String queue, String baseTaskId, int index, NodeResult result) {
+		PipeDatastore fds = runner.getPipeDatastore();
 		int remaining = fds.logTaskFinished(baseTaskId, index, result.getResult());
 		if(remaining > 0){
 			return;
 		}
-		Pipes.start(result.getType(), result.getNext(), fds.getTaskResults(baseTaskId));
+		runner.run(result.getType(), result.getNext(), fds.getTaskResults(baseTaskId));
 		fds.clearTaskLog(baseTaskId);
 	}
 	
-	protected static int sizeOf(Object arg){
+	static int sizeOf(Object arg){
 		if(arg == null){
 			return 1;
 		}
@@ -131,7 +135,7 @@ enum PipeType {
 		return col.size();
 	}
 	
-	protected static Object getAt(int index, Object arg) {
+	static Object getAt(int index, Object arg) {
 		if(arg == null){
 			return null;
 		}
@@ -154,23 +158,6 @@ enum PipeType {
 		}
 		return arg;
 		
-	}
-	
-	protected static <A, R> void clean(String queue, String baseTaskId, int tasksCount){
-		Queue q;
-		if("".equals(queue) || queue == null){
-			q = QueueFactory.getDefaultQueue();
-		} else {
-			q = QueueFactory.getQueue(queue);
-		}
-		for (int i = 0; i < tasksCount; i++) {
-			String taskName = "" + i + "_" + baseTaskId;
-			try {
-				q.deleteTask(taskName);
-			} catch (IllegalStateException e){
-				QueueFactory.getDefaultQueue().deleteTask(taskName);
-			}
-		}
 	}
 
 }

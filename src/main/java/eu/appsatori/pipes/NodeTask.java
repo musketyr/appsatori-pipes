@@ -37,6 +37,7 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 	private final Object arg;
 	private final Class<N> node;
 	private final PipeType type;
+	private transient boolean executed;
 	
 	public NodeTask(PipeType type, Class<N>node, String baseTaskId, int index, Object arg) {
 		this.type = type;
@@ -47,23 +48,29 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 	}
 
 	public void run() {
-		if(!Pipes.getRunner().getPipeDatastore().isActive(baseTaskId)){
-			return;
-		}
 		NodeResult result = NodeResult.END_RESULT;
 		Throwable t = null;
 		try {
-			result = execute();
+			Object a = arg;
+			if(arg instanceof StashedArgument){
+				a = Pipes.getRunner().getPipeDatastore().retrieveArgument(((StashedArgument)arg).getKey());
+			}
+			if(Pipes.getRunner().getPipeDatastore().isActive(baseTaskId)){
+				result = type.execute(createTaskInstance(), a, index);
+				executed = true;
+			} else {
+				return;
+			}
 		} catch(Throwable th){
 			DeferredTaskContext.setDoNotRetry(true);
 			t = th;
 		}
 		
 		if(result == null || !result.hasNext()){
-			type.handlePipeEnd(Pipes.getQueueName(node), baseTaskId, index, result);
+			type.handlePipeEnd(Pipes.getRunner(), Pipes.getQueueName(node), baseTaskId, index, result);
 			return;
 		}
-		type.handleNext(Pipes.getQueueName(node), baseTaskId, index, result);
+		type.handleNext(Pipes.getRunner(), Pipes.getQueueName(node), baseTaskId, index, result);
 		
 		if(t != null){
 			throw new RuntimeException("Exception during running task.", t);
@@ -80,12 +87,19 @@ class NodeTask<P extends Pipe, A,N extends Node<P,A>> implements DeferredTask {
 		}
 	}
 
-	public NodeResult execute(){
-		Object a = arg;
-		if(arg instanceof StashedArgument){
-			a = Pipes.getRunner().getPipeDatastore().retrieveArgument(((StashedArgument)arg).getKey());
-		}
-		return type.execute(createTaskInstance(), a, index);
+	public String getBaseTaskId() {
+		return baseTaskId;
+	}
+
+	public boolean isExecuted() {
+		return executed;
+	}
+	
+	@Override
+	public String toString() {
+		return  (executed ? "Executed " : "") + (index + 1) + " of " + PipeType.sizeOf(arg) + " " 
+				+ node.getSimpleName() + " (" + type + ") with parameter '" 
+				+ PipeType.getAt(index, arg) + "' and base name '" + baseTaskId + "'";
 	}
 	
 }

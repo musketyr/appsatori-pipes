@@ -46,7 +46,7 @@ class PipeTypeSpec extends Specification {
 		4 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 		
 		when:
-		PipeType.clean("", "taskid", 5)
+		new AppEngineNodeRunner().clearTasks("", "taskid", 5)
 		
 		then:
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks

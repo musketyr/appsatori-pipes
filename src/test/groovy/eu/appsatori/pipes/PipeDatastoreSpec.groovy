@@ -32,7 +32,7 @@ abstract class PipeDatastoreSpec extends Specification{
 		
 		expect:
 		pds.logTaskStarted(ptid, parallelTasksCount)
-		!pds.logTaskFinished(ptid, 0, myser)
+		0 == pds.logTaskFinished(ptid, 0, myser)
 		myser.text == pds.getTaskResults(ptid)[0].text
 	}
 	
@@ -44,7 +44,7 @@ abstract class PipeDatastoreSpec extends Specification{
 		
 		expect:
 		pds.logTaskStarted(ptid, parallelTasksCount)
-		!pds.logTaskFinished(ptid, 0, literal)
+		0 == pds.logTaskFinished(ptid, 0, literal)
 		cls == pds.getTaskResults(ptid)[0].getClass()
 		where:
 		literal 					| cls

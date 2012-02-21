@@ -38,7 +38,7 @@ class PipesSpec extends Specification {
 		Pipes.start(PipeType.SERIAL, SerialNode, 'hello')
 		
 		then:
-		1 * fds.logTaskStarted(_, 1)
+		1 * fds.logTaskStarted(_, 1) >> true
 		1 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	
@@ -47,7 +47,7 @@ class PipesSpec extends Specification {
 		Pipes.start(PipeType.PARALLEL, ParallelNode, ['hello', 'world', '!'])
 		
 		then:
-		1 * fds.logTaskStarted(_, 3)
+		1 * fds.logTaskStarted(_, 3) >> true
 		3 == config.localTaskQueue.getQueueStateInfo()[QueueFactory.defaultQueue.queueName].countTasks
 	}
 	

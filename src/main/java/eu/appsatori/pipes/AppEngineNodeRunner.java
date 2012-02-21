@@ -48,9 +48,10 @@ class AppEngineNodeRunner implements NodeRunner {
 		String taskId = Pipes.getUniqueTaskId(node.getName());
 		Queue q = getQueue(node);
 		int total = type.getParallelTasksCount(arg);
-		pipeDatastore.logTaskStarted(taskId, total);
-		for (int i = 0; i < total; i++) {
-			startTask(q, type, node, arg, taskId, i);
+		if(pipeDatastore.logTaskStarted(taskId, total)){
+			for (int i = 0; i < total; i++) {
+				startTask(q, type, node, arg, taskId, i);
+			}
 		}
 		return taskId;
 	}
@@ -86,6 +87,23 @@ class AppEngineNodeRunner implements NodeRunner {
 			q = QueueFactory.getQueue(name);
 		}
 		return q;
+	}
+	
+	public void clearTasks(String queue, String baseTaskId, int tasksCount) {
+		Queue q;
+		if("".equals(queue) || queue == null){
+			q = QueueFactory.getDefaultQueue();
+		} else {
+			q = QueueFactory.getQueue(queue);
+		}
+		for (int i = 0; i < tasksCount; i++) {
+			String taskName = "" + i + "_" + baseTaskId;
+			try {
+				q.deleteTask(taskName);
+			} catch (IllegalStateException e){
+				QueueFactory.getDefaultQueue().deleteTask(taskName);
+			}
+		}
 	}
 
 }

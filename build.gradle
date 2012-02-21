@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    def gaeVersion = '1.6.2'
+    def gaeVersion = '1.6.2.1'
 
     groovy 'org.codehaus.groovy:groovy-all:1.8.5'
 

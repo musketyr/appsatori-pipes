@@ -91,12 +91,7 @@ public class Pipes {
 		}
 	}
 	
-	
-	static String start(PipeType type, Class<? extends Node<?,?>> node){
-		return runner.run(type, node, null);
-	}
-	
-	static <N extends Node<?,?>> String start(PipeType type, Class<? extends Node<?,?>> node, Object arg){
+	private static <N extends Node<?,?>> String start(PipeType type, Class<? extends Node<?,?>> node, Object arg){
 		return runner.run(type, node, arg);
 	}
 	
