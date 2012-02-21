@@ -7,7 +7,7 @@ apply plugin: 'signing'
 
 group = 'eu.appsatori'
 projectName = 'pipes'
-version = '0.6.0'
+version = '0.6.1-SNAPSHOT'
 
 
 
@@ -58,9 +58,12 @@ uploadArchives {
 		mavenDeployer {
 			beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
 
-			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+			def auth = {
 			  authentication(userName: sonatypeUsername, password: sonatypePassword)
 			}
+
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/", auth)
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots", auth)
 
 			pom.project {
 			   name 'AppSatori Pipes'
