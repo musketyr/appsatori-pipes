@@ -136,7 +136,7 @@ public class Pipes {
 	
 	
 	public static String getUniqueTaskId(String from){
-		return TASK_NAME_PATTERN.matcher(from + "_" + RANDOM.nextInt(1000) + "_" + System.currentTimeMillis()).replaceAll("_");
+		return TASK_NAME_PATTERN.matcher(from + "_" + RANDOM.nextLong() + "_" + System.nanoTime()).replaceAll("_");
 	}
 	
 }
