@@ -1,4 +1,8 @@
+  > WARNING: This framework is no longer under active development! Use [GPars App Engine](https://github.com/musketyr/gpars-appengine) instead!
+
+
 # AppSatori Pipes
+
 
 [AppSatori](http://www.appsatori.eu) Pipes is framework for easier concurrent background processing on 
 [Google App Engine Java](http://code.google.com/appengine/docs/java/overview.html)
